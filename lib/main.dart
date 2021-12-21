@@ -1,34 +1,30 @@
 import 'package:flutter/material.dart';
 
+import 'login-page.dart';
+
 void main() {
-  runApp(const MyApp());
+  runApp(MaterialApp(
+    title: 'Viet Name Tourism',
+    debugShowCheckedModeBanner: false,
+    theme: ThemeData(
+        fontFamily: 'Roboto',
+      ),
+    home: MyApp(),
+  ));
 }
 
 class MyApp extends StatelessWidget {
   const MyApp({Key? key}) : super(key: key);
-
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      debugShowCheckedModeBanner: false,
-      title: 'Vietnam Tourism',
-      theme: ThemeData(
-        primarySwatch: Colors.blue,
-      ),
-      home: const MyHomePage(title: 'Vietnam Tourism Page'),
-    );
+    return LoginPage();
   }
 }
 
 class MyHomePage extends StatefulWidget {
-  const MyHomePage({Key? key, required this.title}) : super(key: key);
-
-  final String title;
-
   @override
   State<MyHomePage> createState() => _MyHomePageState();
 }
-
 class _MyHomePageState extends State<MyHomePage> {
   int selectedIndex = 0;
   Widget _diaDanh = DiaDanh();
@@ -53,7 +49,7 @@ class _MyHomePageState extends State<MyHomePage> {
     return Scaffold(
       appBar: AppBar(
         centerTitle: true,
-        title: Text(widget.title),
+        title: Text('Viet Name Tourism'),
       ),
       body: this.getBody(),
       bottomNavigationBar: BottomNavigationBar(
