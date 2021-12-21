@@ -12,8 +12,8 @@ class _LoginPageState extends State<LoginPage> {
 
   @override
   Widget build(BuildContext context) {
-    Widget imgSection = Image.asset(
-      'images/logo/logoFace.png',
+    Widget imgSection = Image.network(
+      'https://upload.wikimedia.org/wikipedia/commons/thumb/2/21/Flag_of_Vietnam.svg/1200px-Flag_of_Vietnam.svg.png',
       alignment: Alignment.center,
       width: 150,
       height: 150,
@@ -97,6 +97,7 @@ class _LoginPageState extends State<LoginPage> {
           } else if (_controller1.text == _controller2.text) {
             Navigator.push(
                 context, MaterialPageRoute(builder: (context) => MyHomePage()));
+                // Navigator.push(context, MaterialPageRoute(builder: (context) => ManagerPage()));
           }else{
             showDialog(
                 context: context,
@@ -125,7 +126,7 @@ class _LoginPageState extends State<LoginPage> {
       height: 50,
       child: TextButton(
         child: Text(
-          'REGISTER',
+          'REGISTER NOW',
           style: TextStyle(color: Colors.white),
         ),
         onPressed: () {
