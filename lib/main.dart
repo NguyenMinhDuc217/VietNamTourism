@@ -10,6 +10,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      debugShowCheckedModeBanner: false,
       title: 'Vietnam Tourism',
       theme: ThemeData(
         primarySwatch: Colors.blue,
@@ -29,39 +30,106 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  int _counter = 0;
+  int selectedIndex = 0;
+  Widget _diaDanh = DiaDanh();
+  Widget _diaDanhLuuTru = DiaDanhLuuTru();
+  Widget _vung=Vung();
+  Widget _taiKhoan = TaiKhoan();
 
-  void _incrementCounter() {
-    setState(() {
-      _counter++;
-    });
+  Widget getBody( )  {
+    if(this.selectedIndex == 0) {
+      return this._diaDanh;
+    } else if(this.selectedIndex==1) {
+      return this._diaDanhLuuTru;
+    } else if(this.selectedIndex==2){
+      return this._vung;
+    } else{
+      return this._taiKhoan;
+    }
+    
   }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        centerTitle: true,
         title: Text(widget.title),
       ),
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            const Text(
-              'You have pushed the button this many times:',
-            ),
-            Text(
-              '$_counter',
-              style: Theme.of(context).textTheme.headline4,
-            ),
-          ],
-        ),
+      body: this.getBody(),
+      bottomNavigationBar: BottomNavigationBar(
+        type: BottomNavigationBarType.fixed,
+        currentIndex: this.selectedIndex,
+        items: [
+          BottomNavigationBarItem(
+            icon: Icon(Icons.edit_location),
+            title: Text('Địa danh'),
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.edit_location_outlined),
+            title: Text('Địa danh lưu trú'),
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.add_location_alt_rounded),
+            title: Text('Vùng'),
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.account_circle),
+            title: Text('Tài khoản'),
+          ),
+        ],
+        onTap: (int index) {
+          this.onTapHandler(index);
+        },
       ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: _incrementCounter,
-        tooltip: 'Increment',
-        child: const Icon(Icons.add),
-      ), // This trailing comma makes auto-formatting nicer for build methods.
     );
+  }
+  void onTapHandler(int index)  {
+    this.setState(() {
+      this.selectedIndex = index;
+    });
+  }
+}
+
+class DiaDanh extends StatefulWidget{
+  @override
+  State<DiaDanh> createState()=>_DiaDanhState();
+}
+class _DiaDanhState extends State<DiaDanh>{
+  @override
+  Widget build(BuildContext context){
+    return Center(child: Text('Địa danh'));
+  }
+}
+
+class DiaDanhLuuTru extends StatefulWidget{
+  @override
+  State<DiaDanhLuuTru> createState()=>_DiaDanhLucTruState();
+}
+class _DiaDanhLucTruState extends State<DiaDanhLuuTru>{
+  @override
+  Widget build(BuildContext context){
+    return Center(child: Text('Địa danh lưu trú'));
+  }
+}
+
+class Vung extends StatefulWidget{
+  @override
+  State<Vung> createState()=>_VungState();
+}
+class _VungState extends State<Vung>{
+  @override
+  Widget build(BuildContext context){
+    return Center(child: Text('Vùng'));
+  }
+}
+
+class TaiKhoan extends StatefulWidget{
+  @override
+  State<TaiKhoan> createState()=>_TaiKhoanState();
+}
+class _TaiKhoanState extends State<TaiKhoan>{
+  @override
+  Widget build(BuildContext context){
+    return Center(child: Text('Tài khoản'));
   }
 }
