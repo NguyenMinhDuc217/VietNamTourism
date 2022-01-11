@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:vietnamtourism/main.dart';
 import 'package:vietnamtourism/register-page.dart';
+
+import 'manager-page.dart';
+
 class LoginPage extends StatefulWidget {
   @override
   _LoginPageState createState() => _LoginPageState();
@@ -97,13 +100,14 @@ class _LoginPageState extends State<LoginPage> {
           } else if (_controller1.text == _controller2.text) {
             Navigator.push(
                 context, MaterialPageRoute(builder: (context) => MyHomePage()));
-                // Navigator.push(context, MaterialPageRoute(builder: (context) => ManagerPage()));
-          }else{
+            // Navigator.push(context, MaterialPageRoute(builder: (context) => ManagerPage()));
+          } else {
             showDialog(
                 context: context,
                 builder: (BuildContext) => AlertDialog(
                       title: Text('Thông báo'),
-                      content: Text('Tài khoản và mật khẩu không trùng khớp !!!'),
+                      content:
+                          Text('Tài khoản và mật khẩu không trùng khớp !!!'),
                       actions: <Widget>[
                         TextButton(
                           onPressed: () {
@@ -130,30 +134,25 @@ class _LoginPageState extends State<LoginPage> {
           style: TextStyle(color: Colors.white),
         ),
         onPressed: () {
-          Navigator.push(context, MaterialPageRoute(builder: (context) => RegisterPage()));
+          Navigator.push(
+              context, MaterialPageRoute(builder: (context) => RegisterPage()));
         },
         style: ButtonStyle(
           backgroundColor: MaterialStateProperty.all<Color>(Colors.black),
         ),
       ),
     );
-    Widget ButtonSection=Container(child: Column(
-      children: [
-        SignInButton,
-        RegisterButton
-      ],
-    ),);
+    Widget ButtonSection = Container(
+      child: Column(
+        children: [SignInButton, RegisterButton],
+      ),
+    );
     return Scaffold(
       backgroundColor: Color(0xff1278f3),
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-          children: [
-            imgSection,
-            TextSection,
-            LoginSection,
-            ButtonSection
-          ],
+          children: [imgSection, TextSection, LoginSection, ButtonSection],
         ),
       ),
     );

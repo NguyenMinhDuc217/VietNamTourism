@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:vietnamtourism/manager-page.dart';
 
 class RegisterPage extends StatefulWidget {
   @override
