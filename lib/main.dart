@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:vietnamtourism/model/tai-khoan.dart';
 
-import 'destiination.dart';
+import 'destination.dart';
 import 'login-page.dart';
 
 void main() {
@@ -23,6 +24,8 @@ class MyApp extends StatelessWidget {
 }
 
 class MyHomePage extends StatefulWidget {
+  MyHomePage({required this.tk});
+  final ThongTinTaiKhoan tk;
   @override
   State<MyHomePage> createState() => _MyHomePageState();
 }
@@ -73,10 +76,10 @@ class _MyHomePageState extends State<MyHomePage> {
                       )),
                   Container(
                       margin: EdgeInsets.only(left: 20),
-                      child: Text(
-                        'Manchester United',
-                        style: TextStyle(fontSize: 20),
-                      )),
+                      child: Flexible(child:Text(
+                        widget.tk.email,
+                        style: TextStyle(fontSize: 15),
+                      ))),
                 ],
               )),
           ListTile(
@@ -98,6 +101,7 @@ class _MyHomePageState extends State<MyHomePage> {
               ],
             ),
             onTap: () {
+              Navigator.pop(context);
               Navigator.pop(context);
             },
           )

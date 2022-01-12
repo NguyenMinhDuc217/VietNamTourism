@@ -1,12 +1,20 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
+import 'package:vietnamtourism/model/tai-khoan.dart';
+
+import 'api.dart';
 
 class ManagerPage extends StatefulWidget {
+  ManagerPage({required this.tk});
+  final ThongTinTaiKhoan tk;
   @override
   _ManagerPageState createState() => _ManagerPageState();
 }
 
 class _ManagerPageState extends State<ManagerPage> {
   int selectedIndex = 0;
+  
   Widget _quanLy = QuanLy();
   Widget _thongKe = ThongKe();
 
@@ -20,12 +28,63 @@ class _ManagerPageState extends State<ManagerPage> {
 
   @override
   Widget build(BuildContext context) {
+    
     return Scaffold(
       appBar: AppBar(
         centerTitle: true,
         title: Text('Viet Name Tourism'),
       ),
       body: this.getBody(),
+      drawer: Drawer(
+          child: ListView(
+        padding: EdgeInsets.zero,
+        children: [
+          DrawerHeader(
+              decoration: const BoxDecoration(
+                color: Colors.blue,
+              ),
+              child: Row(
+                children: [
+                  CircleAvatar(
+                      radius: 30,
+                      backgroundImage: AssetImage('images/logo/logoMU.jpg'),
+                      child: InkWell(
+                        borderRadius: BorderRadius.circular(30),
+                        onTap: () {},
+                      )),
+                  Container(
+                      margin: EdgeInsets.only(left: 20),
+                      child: Flexible(child:Text(
+                        widget.tk.email,
+                        style: TextStyle(fontSize: 15),
+                      ))),
+                ],
+              )),
+          ListTile(
+            title: Row(
+              children: [
+                Icon(Icons.person),
+                Container(
+                    margin: EdgeInsets.only(left: 10), child: Text('Tài khoản')),
+              ],
+            ),
+            onTap: () {},
+          ),
+          ListTile(
+            title: Row(
+              children: [
+                Icon(Icons.logout),
+                Container(
+                    margin: EdgeInsets.only(left: 10), child: Text('Đăng xuất'))
+              ],
+            ),
+            onTap: () {
+              Navigator.pop(context);
+              Navigator.pop(context);
+            },
+          )
+        ],
+      )),
       bottomNavigationBar: BottomNavigationBar(
         type: BottomNavigationBarType.fixed,
         currentIndex: this.selectedIndex,
@@ -59,18 +118,21 @@ class QuanLy extends StatefulWidget {
 }
 
 class _QuanLyState extends State<QuanLy> {
+  bool isUpdate=true;
+  Iterable ds=[];
   Container _buildDSDiaDanh() {
     return Container(
+      
         child: Expanded(
             child: ListView.builder(
-                itemCount: 11,
+                itemCount: ds.length,
                 itemBuilder: (context, index) => ListTile(
                       leading: Image.network(
                         'https://upload.wikimedia.org/wikipedia/commons/thumb/2/21/Flag_of_Vietnam.svg/1200px-Flag_of_Vietnam.svg.png',
                         height: 50,
                         width: 50,
                       ),
-                      title: Text('Địa danh $index'),
+                      title: Text(ds.elementAt(index)["ten_dia_danh"].toString()),
                       trailing: Row(
                         mainAxisSize: MainAxisSize.min,
                         children: [
@@ -86,6 +148,16 @@ class _QuanLyState extends State<QuanLy> {
 
   @override
   Widget build(BuildContext context) {
+    if (isUpdate == true) {
+      API(url: "http://10.0.2.2/vietnamtourism/api/lay_ds_dia_danh.php")
+          .getDataString()
+          .then((value) {
+        ds = json.decode(value);
+        //s=value;
+        isUpdate = false;
+        setState(() {});
+      });
+    }
     return Column(
       children: [
         Padding(

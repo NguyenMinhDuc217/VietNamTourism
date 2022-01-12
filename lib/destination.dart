@@ -1,5 +1,9 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:map_launcher/map_launcher.dart';
+
+import 'api.dart';
 
 class DiaDanh extends StatefulWidget {
   @override
@@ -7,7 +11,8 @@ class DiaDanh extends StatefulWidget {
 }
 
 class _DiaDanhState extends State<DiaDanh> {
-  
+  bool isUpdate=true;
+  Iterable s=[];
   Future<void> _openGoogleMap(double x,double y) async {
     final availableMaps = await MapLauncher.installedMaps;
     await availableMaps.first.showMarker(
@@ -28,19 +33,29 @@ class _DiaDanhState extends State<DiaDanh> {
 
   @override
   Widget build(BuildContext context) {
+    if (isUpdate == true) {
+      API(url: "http://10.0.2.2/vietnamtourism/api/lay_ds_dia_danh.php")
+          .getDataString()
+          .then((value) {
+        s = json.decode(value);
+        //s=value;
+        isUpdate = false;
+        setState(() {});
+      });
+    }
     return Scaffold(
       body: Column(
         children: <Widget>[
           Expanded(
             child: ListView.builder(
               padding: EdgeInsets.only(top: 10.0, bottom: 10.0),
-              itemCount: 5,
+              itemCount: s.length,
               itemBuilder: (BuildContext context, int index) {
                 return Stack(
                   children: <Widget>[
                     Container(
-                      margin: EdgeInsets.fromLTRB(40.0, 5.0, 20.0, 5.0),
-                      height: 170.0,
+                      margin: EdgeInsets.fromLTRB(40.0, 0, 20.0, 0),
+                      height: 200.0,
                       width: double.infinity,
                       decoration: BoxDecoration(
                         color: Colors.white,
@@ -57,43 +72,26 @@ class _DiaDanhState extends State<DiaDanh> {
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: <Widget>[
                                 Container(
-                                  width: 120.0,
+                                  width: 200.0,
                                   child: Text(
-                                    'tên địa danh',
+                                    s.elementAt(index)['ten_dia_danh'].toString(),
                                     style: TextStyle(
                                       fontSize: 20.0,
                                       fontWeight: FontWeight.w600,
                                     ),
-                                    overflow: TextOverflow.ellipsis,
-                                    maxLines: 2,
+                                    overflow: TextOverflow.fade,
+                                    maxLines: 4,
                                   ),
-                                ),
-                                Column(
-                                  children: <Widget>[
-                                    Text(
-                                      'giá',
-                                      style: TextStyle(
-                                        fontSize: 15.0,
-                                        fontWeight: FontWeight.w600,
-                                      ),
-                                    ),
-                                    Text(
-                                      'per pax',
-                                      style: TextStyle(
-                                        color: Colors.grey,
-                                      ),
-                                    ),
-                                  ],
                                 ),
                               ],
                             ),
                             Text(
-                              'Mô tả',
+                              s.elementAt(index)['gia'].toString()+ " VNĐ",
                               style: TextStyle(
                                 color: Colors.grey,
                               ),
                             ),
-                            _buildRatingStars(3),
+                            _buildRatingStars(int.parse(s.elementAt(index)['sao_danh_gia'].toString())),
                             SizedBox(height: 10.0),
                             Row(
                               children: <Widget>[
@@ -104,7 +102,7 @@ class _DiaDanhState extends State<DiaDanh> {
                                     onPressed: () {},
                                     icon: Icon(Icons.thumb_down_alt)),
                                 IconButton(
-                                    onPressed: ()=>_openGoogleMap(10.771813, 106.701410),
+                                    onPressed: ()=>_openGoogleMap(double.parse(s.elementAt(index)['kinh_do'].toString()), double.parse(s.elementAt(index)['vi_do'].toString())),
                                     icon: Icon(Icons.map_outlined)),
                                 Flexible(
                                     child: IconButton(

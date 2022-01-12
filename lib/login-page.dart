@@ -1,7 +1,11 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:vietnamtourism/main.dart';
+import './model/tai-khoan.dart';
 import 'package:vietnamtourism/register-page.dart';
 
+import 'api.dart';
 import 'manager-page.dart';
 
 class LoginPage extends StatefulWidget {
@@ -12,9 +16,36 @@ class LoginPage extends StatefulWidget {
 class _LoginPageState extends State<LoginPage> {
   final _controller1 = TextEditingController();
   final _controller2 = TextEditingController();
-
+  List<ThongTinTaiKhoan> _taiKhoan = [];
   @override
   Widget build(BuildContext context) {
+    bool CheckLogin(String username, String pass) {
+      Iterable s = [];
+      API(url: "http://10.0.2.2/vietnamtourism/api/dang_nhap.php?username=$username&password=$pass")
+          .getDataString()
+          .then((value) {
+        s = json.decode(value);
+        if (_taiKhoan.isNotEmpty) {
+          s = [];
+          _taiKhoan.clear();
+        }
+        if (s.isNotEmpty) {
+          _taiKhoan.add(new ThongTinTaiKhoan(
+              id: int.parse(s.elementAt(0)["id"].toString()),
+              email: s.elementAt(0)["email"].toString(),
+              mat_khau: s.elementAt(0)["mat_khau"].toString(),
+              loai_tai_khoan:
+                  int.parse(s.elementAt(0)["loai_tai_khoan"].toString())));
+        }
+        setState(() {});
+      });
+      if (_taiKhoan.length > 0) {
+        return true;
+      } else {
+        return false;
+      }
+    }
+
     Widget imgSection = Image.network(
       'https://upload.wikimedia.org/wikipedia/commons/thumb/2/21/Flag_of_Vietnam.svg/1200px-Flag_of_Vietnam.svg.png',
       alignment: Alignment.center,
@@ -97,10 +128,13 @@ class _LoginPageState extends State<LoginPage> {
                         ),
                       ],
                     ));
-          } else if (_controller1.text == _controller2.text) {
-            Navigator.push(
-                context, MaterialPageRoute(builder: (context) => MyHomePage()));
-            // Navigator.push(context, MaterialPageRoute(builder: (context) => ManagerPage()));
+          } else if (CheckLogin(_controller1.text, _controller2.text)) {
+            if (_taiKhoan.first.loai_tai_khoan == 1) {
+              Navigator.push(context, MaterialPageRoute(builder: (context) => ManagerPage(tk: _taiKhoan.first)));
+            } else {
+              Navigator.push(context,
+                  MaterialPageRoute(builder: (context) => MyHomePage(tk: _taiKhoan.first)));
+            }
           } else {
             showDialog(
                 context: context,
@@ -150,11 +184,12 @@ class _LoginPageState extends State<LoginPage> {
     return Scaffold(
       backgroundColor: Color(0xff1278f3),
       body: Center(
-        child: SingleChildScrollView(child: Column(
+          child: SingleChildScrollView(
+        child: Column(
           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
           children: [imgSection, TextSection, LoginSection, ButtonSection],
-        ),) 
-      ),
+        ),
+      )),
     );
   }
 }
