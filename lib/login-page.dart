@@ -150,10 +150,10 @@ class _LoginPageState extends State<LoginPage> {
     return Scaffold(
       backgroundColor: Color(0xff1278f3),
       body: Center(
-        child: Column(
+        child: SingleChildScrollView(child: Column(
           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
           children: [imgSection, TextSection, LoginSection, ButtonSection],
-        ),
+        ),) 
       ),
     );
   }
