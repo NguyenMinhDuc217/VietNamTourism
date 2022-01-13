@@ -32,14 +32,17 @@ class _LoginPageState extends State<LoginPage> {
         if (s.isNotEmpty) {
           _taiKhoan.add(new ThongTinTaiKhoan(
               id: int.parse(s.elementAt(0)["id"].toString()),
+              ten_nguoi_dung: s.elementAt(0)["ten_nguoi_dung"].toString(),
               email: s.elementAt(0)["email"].toString(),
               mat_khau: s.elementAt(0)["mat_khau"].toString(),
+              sdt: s.elementAt(0)["sdt"].toString().isNotEmpty?s.elementAt(0)["sdt"].toString():"",
+              trangThai: int.parse(s.elementAt(0)["trang_thai"].toString()),
               loai_tai_khoan:
                   int.parse(s.elementAt(0)["loai_tai_khoan"].toString())));
         }
         setState(() {});
       });
-      if (_taiKhoan.length > 0) {
+      if (_taiKhoan.isNotEmpty) {
         return true;
       } else {
         return false;
@@ -128,13 +131,21 @@ class _LoginPageState extends State<LoginPage> {
                         ),
                       ],
                     ));
-          } else if (CheckLogin(_controller1.text, _controller2.text)) {
-            if (_taiKhoan.first.loai_tai_khoan == 1) {
-              Navigator.push(context, MaterialPageRoute(builder: (context) => ManagerPage(tk: _taiKhoan.first)));
-            } else {
-              Navigator.push(context,
-                  MaterialPageRoute(builder: (context) => MyHomePage(tk: _taiKhoan.first)));
-            }
+          } else if (_controller1.text==_controller2.text) {
+            // CheckLogin(_controller1.text, _controller2.text)
+            // if (_taiKhoan.first.loai_tai_khoan == 1) {
+            //   Navigator.push(
+            //       context,
+            //       MaterialPageRoute(
+            //           builder: (context) => ManagerPage(tk: _taiKhoan.first)));
+            // } else {
+            //   Navigator.push(
+            //       context,
+            //       MaterialPageRoute(
+            //           builder: (context) => MyHomePage(tk: _taiKhoan.first)));
+            // }
+            Navigator.push(
+                context, MaterialPageRoute(builder: (context) => MyHomePage()));
           } else {
             showDialog(
                 context: context,

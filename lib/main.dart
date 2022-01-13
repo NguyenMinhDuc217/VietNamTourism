@@ -24,8 +24,8 @@ class MyApp extends StatelessWidget {
 }
 
 class MyHomePage extends StatefulWidget {
-  MyHomePage({required this.tk});
-  final ThongTinTaiKhoan tk;
+  // MyHomePage({required this.tk});
+  // final ThongTinTaiKhoan tk;
   @override
   State<MyHomePage> createState() => _MyHomePageState();
 }
@@ -77,7 +77,8 @@ class _MyHomePageState extends State<MyHomePage> {
                   Container(
                       margin: EdgeInsets.only(left: 20),
                       child: Flexible(child:Text(
-                        widget.tk.email,
+                        //widget.tk.ten_nguoi_dung,
+                        'PaHuHo',
                         style: TextStyle(fontSize: 15),
                       ))),
                 ],

@@ -55,7 +55,7 @@ class _ManagerPageState extends State<ManagerPage> {
                   Container(
                       margin: EdgeInsets.only(left: 20),
                       child: Flexible(child:Text(
-                        widget.tk.email,
+                        widget.tk.ten_nguoi_dung,
                         style: TextStyle(fontSize: 15),
                       ))),
                 ],

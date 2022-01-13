@@ -16,7 +16,6 @@ class _DiaDanhState extends State<DiaDanh> {
   Future<void> _openGoogleMap(double x,double y) async {
     final availableMaps = await MapLauncher.installedMaps;
     await availableMaps.first.showMarker(
-       //coords: Coords(37.759392, -122.5107336),
       coords: Coords(x, y),
       title: "Ocean Beach",
     );
@@ -38,7 +37,6 @@ class _DiaDanhState extends State<DiaDanh> {
           .getDataString()
           .then((value) {
         s = json.decode(value);
-        //s=value;
         isUpdate = false;
         setState(() {});
       });
@@ -86,7 +84,7 @@ class _DiaDanhState extends State<DiaDanh> {
                               ],
                             ),
                             Text(
-                              s.elementAt(index)['gia'].toString()+ " VNĐ",
+                              s.elementAt(index)['mo_ta'].toString(),
                               style: TextStyle(
                                 color: Colors.grey,
                               ),
@@ -97,10 +95,10 @@ class _DiaDanhState extends State<DiaDanh> {
                               children: <Widget>[
                                 IconButton(
                                     onPressed: () {},
-                                    icon: Icon(Icons.thumb_up_alt)),
+                                    icon: Icon(Icons.thumb_up_alt_outlined)),
                                 IconButton(
                                     onPressed: () {},
-                                    icon: Icon(Icons.thumb_down_alt)),
+                                    icon: Icon(Icons.thumb_down_alt_outlined)),
                                 IconButton(
                                     onPressed: ()=>_openGoogleMap(double.parse(s.elementAt(index)['kinh_do'].toString()), double.parse(s.elementAt(index)['vi_do'].toString())),
                                     icon: Icon(Icons.map_outlined)),
