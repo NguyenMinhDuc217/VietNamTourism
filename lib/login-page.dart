@@ -131,21 +131,20 @@ class _LoginPageState extends State<LoginPage> {
                         ),
                       ],
                     ));
-          } else if (_controller1.text==_controller2.text) {
-            // CheckLogin(_controller1.text, _controller2.text)
-            // if (_taiKhoan.first.loai_tai_khoan == 1) {
-            //   Navigator.push(
-            //       context,
-            //       MaterialPageRoute(
-            //           builder: (context) => ManagerPage(tk: _taiKhoan.first)));
-            // } else {
-            //   Navigator.push(
-            //       context,
-            //       MaterialPageRoute(
-            //           builder: (context) => MyHomePage(tk: _taiKhoan.first)));
-            // }
-            Navigator.push(
-                context, MaterialPageRoute(builder: (context) => MyHomePage()));
+          } else if (CheckLogin(_controller1.text, _controller2.text)) {
+            if (_taiKhoan.first.loai_tai_khoan == 1) {
+              Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) => ManagerPage(tk: _taiKhoan.first)));
+            } else {
+              Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) => MyHomePage(tk: _taiKhoan.first)));
+            }
+            // Navigator.push(
+            //     context, MaterialPageRoute(builder: (context) => MyHomePage()));
           } else {
             showDialog(
                 context: context,
