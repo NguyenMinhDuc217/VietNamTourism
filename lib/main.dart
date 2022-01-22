@@ -2,35 +2,34 @@
 
 import 'package:flutter/material.dart';
 import 'package:vietnamtourism/diadanhluutru.dart';
+import 'package:vietnamtourism/model/tai-khoan.dart';
 import './vung.dart';
 import 'chitietvung.dart';
-
+import 'destination.dart';
+import 'login-page.dart';
 
 void main() {
-  runApp(const MyApp());
+  runApp(MaterialApp(
+    title: 'Viet Name Tourism',
+    debugShowCheckedModeBanner: false,
+    theme: ThemeData(
+      fontFamily: 'Roboto',
+    ),
+    home: MyApp(),
+  ));
 }
 
 class MyApp extends StatelessWidget {
   const MyApp({Key? key}) : super(key: key);
-
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      debugShowCheckedModeBanner: false,
-      title: 'Vietnam Tourism',
-      theme: ThemeData(
-        primarySwatch: Colors.blue,
-      ),
-      home: const MyHomePage(title: 'Vietnam Tourism Page'),
-    );
+    return LoginPage();
   }
 }
 
 class MyHomePage extends StatefulWidget {
-  const MyHomePage({Key? key, required this.title}) : super(key: key);
-
-  final String title;
-
+  MyHomePage({required this.tk});
+  final ThongTinTaiKhoan tk;
   @override
   State<MyHomePage> createState() => _MyHomePageState();
 }
@@ -40,30 +39,81 @@ class _MyHomePageState extends State<MyHomePage> {
   int selectedIndex = 0;
   Widget _diaDanh = DiaDanh();
   Widget _diaDanhLuuTru = DiaDanhLuuTru();
-  Widget _vung=Vung();
+  Widget _vung = Vung();
   Widget _taiKhoan = TaiKhoan();
   
 
-  Widget getBody( )  {
-    if(this.selectedIndex == 0) {
+  Widget getBody() {
+    if (this.selectedIndex == 0) {
       return this._diaDanh;
-    } else if(this.selectedIndex==1) {
+    } else if (this.selectedIndex == 1) {
       return this._diaDanhLuuTru;
-    } else if(this.selectedIndex==2){
+    } else if (this.selectedIndex == 2) {
       return this._vung;
-    } else{
+    } else {
       return this._taiKhoan;
     }
-    
   }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         centerTitle: true,
-        title: Text(widget.title),
+        title: Text('Viet Name Tourism'),
       ),
       body: this.getBody(),
+      drawer: Drawer(
+          child: ListView(
+        padding: EdgeInsets.zero,
+        children: [
+          DrawerHeader(
+              decoration: const BoxDecoration(
+                color: Colors.blue,
+              ),
+              child: Row(
+                children: [
+                  CircleAvatar(
+                      radius: 30,
+                      backgroundImage: AssetImage('images/logo/logoMU.jpg'),
+                      child: InkWell(
+                        borderRadius: BorderRadius.circular(30),
+                        onTap: () {},
+                      )),
+                  Container(
+                      margin: EdgeInsets.only(left: 20),
+                      child: Flexible(child:Text(
+                        widget.tk.ten_nguoi_dung,
+                        //'PaHuHo',
+                        style: TextStyle(fontSize: 15),
+                      ))),
+                ],
+              )),
+          ListTile(
+            title: Row(
+              children: [
+                Icon(Icons.person),
+                Container(
+                    margin: EdgeInsets.only(left: 10), child: Text('Tài khoản')),
+              ],
+            ),
+            onTap: () {},
+          ),
+          ListTile(
+            title: Row(
+              children: [
+                Icon(Icons.logout),
+                Container(
+                    margin: EdgeInsets.only(left: 10), child: Text('Đăng xuất'))
+              ],
+            ),
+            onTap: () {
+              Navigator.pop(context);
+              Navigator.pop(context);
+            },
+          )
+        ],
+      )),
       bottomNavigationBar: BottomNavigationBar(
         type: BottomNavigationBarType.fixed,
         currentIndex: this.selectedIndex,
@@ -82,7 +132,7 @@ class _MyHomePageState extends State<MyHomePage> {
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.account_circle),
-            title: Text('Tài khoản'),
+            title: Text('Cá nhân'),
           ),
         ],
         onTap: (int index) {
@@ -91,31 +141,21 @@ class _MyHomePageState extends State<MyHomePage> {
       ),
     );
   }
-  void onTapHandler(int index)  {
+
+  void onTapHandler(int index) {
     this.setState(() {
       this.selectedIndex = index;
     });
   }
 }
-
-class DiaDanh extends StatefulWidget{
+class TaiKhoan extends StatefulWidget {
   @override
-  State<DiaDanh> createState()=>_DiaDanhState();
-}
-class _DiaDanhState extends State<DiaDanh>{
-  @override
-  Widget build(BuildContext context){
-    return Center(child: Text('Địa danh'));
-  }
+  State<TaiKhoan> createState() => _TaiKhoanState();
 }
 
-class TaiKhoan extends StatefulWidget{
+class _TaiKhoanState extends State<TaiKhoan> {
   @override
-  State<TaiKhoan> createState()=>_TaiKhoanState();
-}
-class _TaiKhoanState extends State<TaiKhoan>{
-  @override
-  Widget build(BuildContext context){
+  Widget build(BuildContext context) {
     return Center(child: Text('Tài khoản'));
   }
 }
