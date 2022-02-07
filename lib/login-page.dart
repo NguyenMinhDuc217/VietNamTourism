@@ -6,6 +6,7 @@ import './model/tai-khoan.dart';
 import 'package:vietnamtourism/register-page.dart';
 
 import 'api.dart';
+import 'package:http/http.dart' as http;
 import 'manager-page.dart';
 
 class LoginPage extends StatefulWidget {
@@ -17,35 +18,61 @@ class _LoginPageState extends State<LoginPage> {
   final _controller1 = TextEditingController();
   final _controller2 = TextEditingController();
   List<ThongTinTaiKhoan> _taiKhoan = [];
+
   @override
   Widget build(BuildContext context) {
-    bool CheckLogin(String username, String pass) {
+    Future userLogin() async {
+      String email = _controller1.text;
+      String password = _controller2.text;
       Iterable s = [];
-      API(url: "http://10.0.2.2/vietnamtourism/api/dang_nhap.php?username=$username&password=$pass")
-          .getDataString()
-          .then((value) {
-        s = json.decode(value);
-        if (_taiKhoan.isNotEmpty) {
-          s = [];
-          _taiKhoan.clear();
-        }
-        if (s.isNotEmpty) {
-          _taiKhoan.add(new ThongTinTaiKhoan(
-              id: int.parse(s.elementAt(0)["id"].toString()),
-              ten_nguoi_dung: s.elementAt(0)["ten_nguoi_dung"].toString(),
-              email: s.elementAt(0)["email"].toString(),
-              mat_khau: s.elementAt(0)["mat_khau"].toString(),
-              sdt: s.elementAt(0)["sdt"].toString().isNotEmpty?s.elementAt(0)["sdt"].toString():"",
-              trangThai: int.parse(s.elementAt(0)["trang_thai"].toString()),
-              loai_tai_khoan:
-                  int.parse(s.elementAt(0)["loai_tai_khoan"].toString())));
-        }
-        setState(() {});
-      });
+      _taiKhoan.clear();
+      var url ='http://10.0.2.2/vietnamtourism/api/dang_nhap.php?username=$email&password=$password';
+      var response = await http.get(Uri.parse(url));
+      s = jsonDecode(response.body);
+      if (s.isNotEmpty) {
+        _taiKhoan.add(new ThongTinTaiKhoan(
+            id: int.parse(s.elementAt(0)["id"].toString()),
+            ten_nguoi_dung: s.elementAt(0)["ten_nguoi_dung"].toString(),
+            email: s.elementAt(0)["email"].toString(),
+            mat_khau: s.elementAt(0)["mat_khau"].toString(),
+            sdt: s.elementAt(0)["sdt"].toString().isNotEmpty
+                ? s.elementAt(0)["sdt"].toString()
+                : "",
+            trangThai: int.parse(s.elementAt(0)["trang_thai"].toString()),
+            loai_tai_khoan:
+                int.parse(s.elementAt(0)["loai_tai_khoan"].toString())));
+      }
       if (_taiKhoan.isNotEmpty) {
-        return true;
+        if (_taiKhoan.first.loai_tai_khoan == 1) {
+          Navigator.push(
+              context,
+              MaterialPageRoute(
+                  builder: (context) =>
+                      ManagerPage(tk: _taiKhoan.elementAt(0))));
+        } else {
+          Navigator.push(
+              context,
+              MaterialPageRoute(
+                  builder: (context) =>
+                      MyHomePage(tk: _taiKhoan.elementAt(0))));
+        }
+        // Navigator.push(
+        //     context, MaterialPageRoute(builder: (context) => MyHomePage()));
       } else {
-        return false;
+        showDialog(
+            context: context,
+            builder: (BuildContext) => AlertDialog(
+                  title: Text('Thông báo'),
+                  content: Text('Tài khoản và mật khẩu không trùng khớp !!!'),
+                  actions: <Widget>[
+                    TextButton(
+                      onPressed: () {
+                        Navigator.pop(context);
+                      },
+                      child: Text("OK"),
+                    ),
+                  ],
+                ));
       }
     }
 
@@ -131,36 +158,10 @@ class _LoginPageState extends State<LoginPage> {
                         ),
                       ],
                     ));
-          } else if (CheckLogin(_controller1.text, _controller2.text)) {
-            if (_taiKhoan.first.loai_tai_khoan == 1) {
-              Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                      builder: (context) => ManagerPage(tk: _taiKhoan.first)));
-            } else {
-              Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                      builder: (context) => MyHomePage(tk: _taiKhoan.first)));
-            }
-            // Navigator.push(
-            //     context, MaterialPageRoute(builder: (context) => MyHomePage()));
           } else {
-            showDialog(
-                context: context,
-                builder: (BuildContext) => AlertDialog(
-                      title: Text('Thông báo'),
-                      content:
-                          Text('Tài khoản và mật khẩu không trùng khớp !!!'),
-                      actions: <Widget>[
-                        TextButton(
-                          onPressed: () {
-                            Navigator.pop(context);
-                          },
-                          child: Text("OK"),
-                        ),
-                      ],
-                    ));
+            setState(() {
+              userLogin();
+            });
           }
         },
         style: ButtonStyle(
