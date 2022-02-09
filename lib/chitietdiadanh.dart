@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 import 'package:map_launcher/map_launcher.dart';
 
 import 'api.dart';
@@ -23,13 +24,16 @@ class _ChiTietDiaDanhState extends State<ChiTietDiaDanh> {
     );
   }
 
-  Text _buildRatingStars(int rating) {
-    String stars = '';
-    for (int i = 0; i < rating; i++) {
-      stars += '⭐ ';
-    }
-    stars.trim();
-    return Text(stars);
+  Widget _buildRatingStars(double rating) {
+    return RatingBarIndicator(
+      rating: rating,
+      itemBuilder: (context, index) => Icon(
+        Icons.star,
+        color: Colors.amber,
+      ),
+      itemCount: 5,
+      itemSize: 25.0,
+    );
   }
 
   @override
@@ -117,7 +121,7 @@ class _ChiTietDiaDanhState extends State<ChiTietDiaDanh> {
                                     fontWeight: FontWeight.w600,
                                     fontSize: 23),
                               ),
-                              _buildRatingStars(int.parse(diaDanh
+                              _buildRatingStars(double.parse(diaDanh
                                   .elementAt(0)['sao_danh_gia']
                                   .toString())),
                             ],

@@ -3,6 +3,7 @@
 import 'package:flutter/material.dart';
 import 'package:vietnamtourism/diadanhluutru.dart';
 import 'package:vietnamtourism/model/tai-khoan.dart';
+import 'package:vietnamtourism/personal-info.dart';
 import './vung.dart';
 import 'chitietvung.dart';
 import 'destination.dart';
@@ -75,7 +76,7 @@ class _MyHomePageState extends State<MyHomePage> {
                 children: [
                   CircleAvatar(
                       radius: 30,
-                      backgroundImage: AssetImage('images/logo/logoMU.jpg'),
+                      backgroundImage: AssetImage('assets/images/santorini.jpg'),
                       child: InkWell(
                         borderRadius: BorderRadius.circular(30),
                         onTap: () {},
@@ -94,10 +95,12 @@ class _MyHomePageState extends State<MyHomePage> {
               children: [
                 Icon(Icons.person),
                 Container(
-                    margin: EdgeInsets.only(left: 10), child: Text('Tài khoản')),
+                    margin: EdgeInsets.only(left: 10), child: Text('Thông tin cá nhân')),
               ],
             ),
-            onTap: () {},
+            onTap: () {
+              Navigator.push(context,  MaterialPageRoute(builder: (context)=>InfoPersonal(id:widget.tk.id.toString())));
+            },
           ),
           ListTile(
             title: Row(

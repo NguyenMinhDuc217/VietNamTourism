@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
+import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 import 'package:map_launcher/map_launcher.dart';
 import 'package:vietnamtourism/chitietdiadanh.dart';
 import 'package:http/http.dart' as http;
@@ -13,12 +14,18 @@ class DiaDanh extends StatefulWidget {
 class _DiaDanhState extends State<DiaDanh> {
   bool isUpdate = true;
   List dsLoaiDiaDanh = [];
+  List dsVung = [];
+  List dsMien = [];
   bool isFilter = false;
   Iterable dsDiaDanh = [];
   Iterable dsFind = [];
   bool isFind = false;
-  var _mySelection;
+  var _mySelectionLDD;
+  var _mySelectionVung;
+  var _mySelectionMien;
+
   final _controller = TextEditingController();
+
   Future<void> _openGoogleMap(double x, double y) async {
     final availableMaps = await MapLauncher.installedMaps;
     await availableMaps.first.showMarker(
@@ -27,13 +34,16 @@ class _DiaDanhState extends State<DiaDanh> {
     );
   }
 
-  Text _buildRatingStars(int rating) {
-    String stars = '';
-    for (int i = 0; i < rating; i++) {
-      stars += '⭐ ';
-    }
-    stars.trim();
-    return Text(stars);
+  Widget _buildRatingStars(double rating) {
+    return RatingBarIndicator(
+      rating: rating,
+      itemBuilder: (context, index) => Icon(
+        Icons.star,
+        color: Colors.amber,
+      ),
+      itemCount: 5,
+      itemSize: 30.0,
+    );
   }
 
   Future<String> layLoaiDiaDanh() async {
@@ -43,7 +53,33 @@ class _DiaDanhState extends State<DiaDanh> {
     setState(() {
       dsLoaiDiaDanh = resBody;
       print(dsLoaiDiaDanh);
-      _mySelection = dsLoaiDiaDanh.elementAt(0)["id"].toString();
+      _mySelectionLDD = dsLoaiDiaDanh.elementAt(0)["id"].toString();
+    });
+
+    return "Sucess";
+  }
+
+  Future<String> layVung() async {
+    String url = "http://10.0.2.2/vietnamtourism/api/lay_ds_vung.php";
+    var res = await http.get(Uri.parse(url));
+    var resBody = json.decode(res.body);
+    setState(() {
+      dsVung = resBody;
+      print(dsVung);
+      _mySelectionVung = dsVung.elementAt(0)["id"].toString();
+    });
+
+    return "Sucess";
+  }
+
+  Future<String> layMien() async {
+    String url = "http://10.0.2.2/vietnamtourism/api/lay_ds_mien.php";
+    var res = await http.get(Uri.parse(url));
+    var resBody = json.decode(res.body);
+    setState(() {
+      dsMien = resBody;
+      print(dsMien);
+      _mySelectionMien = dsMien.elementAt(0)["id"].toString();
     });
 
     return "Sucess";
@@ -53,12 +89,14 @@ class _DiaDanhState extends State<DiaDanh> {
   void initState() {
     super.initState();
     this.layLoaiDiaDanh();
+    this.layVung();
+    this.layMien();
   }
 
   Widget _buildFilter() {
     return Container(
       child: Column(
-        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+        mainAxisAlignment: MainAxisAlignment.start,
         mainAxisSize: MainAxisSize.min,
         children: <Widget>[
           Container(
@@ -94,28 +132,36 @@ class _DiaDanhState extends State<DiaDanh> {
                     ),
                     onChanged: (newVal) {
                       setState(() {
-                        _mySelection = newVal.toString();
-                        print(_mySelection);
-                        if (_mySelection == "0") {
-                          if (isFind == false) {
-                            setState(() {
-                              isFind = false;
-                            });
-                          } else {
+                        _mySelectionLDD = newVal.toString();
+                        print(_mySelectionLDD);
+                        if (_mySelectionLDD == "0") {
+                          if (isFind == true) {
                             dsFind = dsDiaDanh.where((element) =>
                                 element["ten_dia_danh"]
                                     .toString()
                                     .startsWith(_controller.text));
+                          } else {
+                            dsFind = dsDiaDanh;
+                          }
+                          if (_mySelectionVung != "0") {
+                            dsFind = dsFind.where((element) =>
+                                element["vung_id"].toString() ==
+                                _mySelectionVung);
+                          }
+                          if (_mySelectionMien != "0") {
+                            dsFind = dsFind.where((element) =>
+                                element["mien_id"].toString() ==
+                                _mySelectionMien);
                           }
                         } else {
                           if (isFind == true) {
                             dsFind = dsFind.where((element) =>
                                 element["loai_dia_danh_id"].toString() ==
-                                _mySelection);
+                                _mySelectionLDD);
                           } else {
                             dsFind = dsDiaDanh.where((element) =>
                                 element["loai_dia_danh_id"].toString() ==
-                                _mySelection);
+                                _mySelectionLDD);
                             setState(() {
                               isFind = true;
                             });
@@ -123,7 +169,161 @@ class _DiaDanhState extends State<DiaDanh> {
                         }
                       });
                     },
-                    value: _mySelection,
+                    value: _mySelectionLDD,
+                    isDense: true,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          Container(
+            margin: EdgeInsets.all(10),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.start,
+              children: [
+                Text(
+                  "Vùng: ",
+                  style: TextStyle(fontSize: 15, fontWeight: FontWeight.w400),
+                ),
+                Container(
+                  margin: EdgeInsets.only(left: 10),
+                  child: DropdownButton(
+                    alignment: AlignmentDirectional.bottomStart,
+                    items: dsVung.map((item) {
+                      return new DropdownMenuItem(
+                        child: new Text(
+                          item['ten_vung'],
+                          style: TextStyle(fontSize: 14.0),
+                        ),
+                        value: item['id'].toString(),
+                      );
+                    }).toList(),
+                    elevation: 16,
+                    style: const TextStyle(
+                        fontWeight: FontWeight.w500,
+                        fontSize: 25,
+                        color: Colors.lightBlue),
+                    underline: Container(
+                      height: 2,
+                      color: Colors.lightBlue,
+                    ),
+                    onChanged: (newVal) {
+                      setState(() {
+                        _mySelectionVung = newVal.toString();
+                        print(_mySelectionVung);
+                        if (_mySelectionVung == "0") {
+                          if (isFind == true) {
+                            dsFind = dsDiaDanh.where((element) =>
+                                element["ten_dia_danh"]
+                                    .toString()
+                                    .startsWith(_controller.text));
+                          } else {
+                            dsFind = dsDiaDanh;
+                          }
+                          if (_mySelectionLDD != "0") {
+                            dsFind = dsFind.where((element) =>
+                                element["loai_dia_danh_id"].toString() ==
+                                _mySelectionLDD);
+                          }
+                          if (_mySelectionMien != "0") {
+                            dsFind = dsFind.where((element) =>
+                                element["mien_id"].toString() ==
+                                _mySelectionMien);
+                          }
+                        } else {
+                          if (isFind == true) {
+                            dsFind = dsFind.where((element) =>
+                                element["vung_id"].toString() ==
+                                _mySelectionVung);
+                          } else {
+                            dsFind = dsDiaDanh.where((element) =>
+                                element["vung_id"].toString() ==
+                                _mySelectionVung);
+                            setState(() {
+                              isFind = true;
+                            });
+                          }
+                        }
+                      });
+                    },
+                    value: _mySelectionVung,
+                    isDense: true,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          Container(
+            margin: EdgeInsets.all(10),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.start,
+              children: [
+                Text(
+                  "Miền: ",
+                  style: TextStyle(fontSize: 15, fontWeight: FontWeight.w400),
+                ),
+                Container(
+                  margin: EdgeInsets.only(left: 10),
+                  child: DropdownButton(
+                    alignment: AlignmentDirectional.bottomStart,
+                    items: dsMien.map((item) {
+                      return new DropdownMenuItem(
+                        child: new Text(
+                          item['ten_mien'],
+                          style: TextStyle(fontSize: 14.0),
+                        ),
+                        value: item['id'].toString(),
+                      );
+                    }).toList(),
+                    elevation: 16,
+                    style: const TextStyle(
+                        fontWeight: FontWeight.w500,
+                        fontSize: 25,
+                        color: Colors.lightBlue),
+                    underline: Container(
+                      height: 2,
+                      color: Colors.lightBlue,
+                    ),
+                    onChanged: (newVal) {
+                      setState(() {
+                        _mySelectionMien = newVal.toString();
+                        print(_mySelectionMien);
+                        if (_mySelectionMien == "0") {
+                          if (isFind == true) {
+                            dsFind = dsDiaDanh.where((element) =>
+                                element["ten_dia_danh"]
+                                    .toString()
+                                    .startsWith(_controller.text));
+                          } else {
+                            dsFind = dsDiaDanh;
+                          }
+                          if (_mySelectionLDD != "0") {
+                            dsFind = dsFind.where((element) =>
+                                element["loai_dia_danh_id"].toString() ==
+                                _mySelectionLDD);
+                          }
+                          if (_mySelectionVung != "0") {
+                            dsFind = dsFind.where((element) =>
+                                element["vung_id"].toString() ==
+                                _mySelectionVung);
+                          }
+                        } else {
+                          if (isFind == true) {
+                            dsFind = dsFind.where((element) =>
+                                element["mien_id"].toString() ==
+                                _mySelectionMien);
+                          } else {
+                            dsFind = dsDiaDanh.where((element) =>
+                                element["mien_id"].toString() ==
+                                _mySelectionMien);
+                            setState(() {
+                              isFind = true;
+                            });
+                          }
+                        }
+                      });
+                    },
+                    value: _mySelectionMien,
                     isDense: true,
                   ),
                 ),
@@ -138,107 +338,107 @@ class _DiaDanhState extends State<DiaDanh> {
   Widget _buildDSDiaDanh(Iterable ds) {
     return Expanded(
       child: ListView.builder(
-        padding: EdgeInsets.only(top: 10.0, bottom: 10.0),
-        itemCount: ds.length,
-        itemBuilder: (BuildContext context, int index) {
-          return GestureDetector(
-              onTap: () {
-                Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                        builder: (context) => ChiTietDiaDanh(
-                              diaDanhId: ds.elementAt(index)['id'].toString(),
-                            )));
-              },
-              child: Stack(
-                children: <Widget>[
-                  Container(
-                    margin: EdgeInsets.fromLTRB(40.0, 0, 20.0, 0),
-                    height: 200.0,
-                    width: double.infinity,
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(20.0),
-                    ),
-                    child: Padding(
-                      padding: EdgeInsets.fromLTRB(100.0, 20.0, 20.0, 20.0),
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: <Widget>[
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: <Widget>[
-                              Container(
-                                width: 200.0,
-                                child: Text(
-                                  ds
-                                      .elementAt(index)['ten_dia_danh']
-                                      .toString(),
-                                  style: TextStyle(
-                                    fontSize: 20.0,
-                                    fontWeight: FontWeight.w600,
+          padding: EdgeInsets.only(top: 10.0, bottom: 10.0),
+          itemCount: ds.length,
+          itemBuilder: (BuildContext context, int index) {
+            return GestureDetector(
+                onTap: () {
+                  Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) => ChiTietDiaDanh(
+                                diaDanhId: ds.elementAt(index)['id'].toString(),
+                              )));
+                },
+                child: Stack(
+                  children: <Widget>[
+                    Container(
+                      margin: EdgeInsets.fromLTRB(40.0, 0, 20.0, 0),
+                      height: 200.0,
+                      width: double.infinity,
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(20.0),
+                      ),
+                      child: Padding(
+                        padding: EdgeInsets.fromLTRB(100.0, 20.0, 20.0, 20.0),
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: <Widget>[
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: <Widget>[
+                                Container(
+                                  width: 200.0,
+                                  child: Text(
+                                    ds
+                                        .elementAt(index)['ten_dia_danh']
+                                        .toString(),
+                                    style: TextStyle(
+                                      fontSize: 20.0,
+                                      fontWeight: FontWeight.w600,
+                                    ),
+                                    overflow: TextOverflow.fade,
+                                    maxLines: 4,
                                   ),
-                                  overflow: TextOverflow.fade,
-                                  maxLines: 4,
                                 ),
-                              ),
-                            ],
-                          ),
-                          Text(
-                            ds.elementAt(index)['mo_ta'].toString(),
-                            style: TextStyle(
-                              color: Colors.grey,
+                              ],
                             ),
-                          ),
-                          _buildRatingStars(int.parse(
-                              ds.elementAt(index)['sao_danh_gia'].toString())),
-                          SizedBox(height: 10.0),
-                          Row(
-                            children: <Widget>[
-                              IconButton(
-                                  onPressed: () {},
-                                  icon: Icon(Icons.thumb_up_alt_outlined)),
-                              IconButton(
-                                  onPressed: () {},
-                                  icon: Icon(Icons.thumb_down_alt_outlined)),
-                              IconButton(
-                                  onPressed: () => _openGoogleMap(
-                                      double.parse(ds
-                                          .elementAt(index)['kinh_do']
-                                          .toString()),
-                                      double.parse(ds
-                                          .elementAt(index)['vi_do']
-                                          .toString())),
-                                  icon: Icon(Icons.map_outlined)),
-                              Flexible(
-                                  child: IconButton(
-                                      onPressed: () {},
-                                      icon: Icon(Icons.share))),
-                            ],
-                          ),
-                        ],
+                            Text(
+                              ds.elementAt(index)['mo_ta'].toString(),
+                              style: TextStyle(
+                                color: Colors.grey,
+                              ),
+                            ),
+                            _buildRatingStars(double.parse(ds
+                                .elementAt(index)['sao_danh_gia']
+                                .toString())),
+                            SizedBox(height: 10.0),
+                            Row(
+                              children: <Widget>[
+                                IconButton(
+                                    onPressed: () {},
+                                    icon: Icon(Icons.thumb_up_alt_outlined)),
+                                IconButton(
+                                    onPressed: () {},
+                                    icon: Icon(Icons.thumb_down_alt_outlined)),
+                                IconButton(
+                                    onPressed: () => _openGoogleMap(
+                                        double.parse(ds
+                                            .elementAt(index)['kinh_do']
+                                            .toString()),
+                                        double.parse(ds
+                                            .elementAt(index)['vi_do']
+                                            .toString())),
+                                    icon: Icon(Icons.map_outlined)),
+                                Flexible(
+                                    child: IconButton(
+                                        onPressed: () {},
+                                        icon: Icon(Icons.share))),
+                              ],
+                            ),
+                          ],
+                        ),
                       ),
                     ),
-                  ),
-                  Positioned(
-                    left: 20.0,
-                    top: 15.0,
-                    bottom: 15.0,
-                    child: ClipRRect(
-                      borderRadius: BorderRadius.circular(20.0),
-                      child: Image.network(
-                        'https://upload.wikimedia.org/wikipedia/commons/thumb/2/21/Flag_of_Vietnam.svg/1200px-Flag_of_Vietnam.svg.png',
-                        width: 110,
-                        fit: BoxFit.cover,
+                    Positioned(
+                      left: 20.0,
+                      top: 15.0,
+                      bottom: 15.0,
+                      child: ClipRRect(
+                        borderRadius: BorderRadius.circular(20.0),
+                        child: Image.network(
+                          'https://upload.wikimedia.org/wikipedia/commons/thumb/2/21/Flag_of_Vietnam.svg/1200px-Flag_of_Vietnam.svg.png',
+                          width: 110,
+                          fit: BoxFit.cover,
+                        ),
                       ),
                     ),
-                  ),
-                ],
-              ));
-        },
-      ),
+                  ],
+                ));
+          }),
     );
   }
 
@@ -284,29 +484,29 @@ class _DiaDanhState extends State<DiaDanh> {
                 IconButton(
                     onPressed: () {
                       setState(() {
-                        _mySelection = "0";
+                        _mySelectionLDD = "0";
                         _controller.text = "";
+                        _mySelectionVung = "0";
+                        _mySelectionMien = "0";
                         isFind = false;
                       });
                     },
                     icon: Icon(Icons.cancel_outlined)),
                 OutlinedButton(
                   onPressed: () {
-                    if (isFilter == false) {
+                    if (isFilter == false&&_mySelectionLDD == "0" &&
+                          _mySelectionMien == "0" &&
+                          _mySelectionVung == "0") {
                       dsFind = dsDiaDanh.where((element) =>
                           element["ten_dia_danh"]
                               .toString()
                               .startsWith(_controller.text));
                     } else {
-                      dsFind = dsDiaDanh
-                          .where((element) => element["ten_dia_danh"]
-                              .toString()
-                              .startsWith(_controller.text))
-                          .where((element) =>
-                              element["loai_dia_danh_id"].toString() ==
-                              _mySelection);
+                        dsFind = dsFind.where((element) =>
+                            element["ten_dia_danh"]
+                                .toString()
+                                .startsWith(_controller.text));
                     }
-
                     setState(() {
                       isFind = true;
                     });
@@ -322,7 +522,9 @@ class _DiaDanhState extends State<DiaDanh> {
 
           //Area Filter
           isFilter == false ? Text("") : _buildFilter(),
-
+          isFind == false
+              ? Text("")
+              : Text("( Tìm thấy " + dsFind.length.toString() + " kết quả)"),
           //Area List DiaDanh
           isFind == true ? _buildDSDiaDanh(dsFind) : _buildDSDiaDanh(dsDiaDanh),
         ],

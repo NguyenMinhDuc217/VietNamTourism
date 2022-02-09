@@ -63,7 +63,7 @@ class _LoginPageState extends State<LoginPage> {
             context: context,
             builder: (BuildContext) => AlertDialog(
                   title: Text('Thông báo'),
-                  content: Text('Tài khoản và mật khẩu không trùng khớp !!!'),
+                  content: Text('Email và mật khẩu không trùng khớp !!!'),
                   actions: <Widget>[
                     TextButton(
                       onPressed: () {

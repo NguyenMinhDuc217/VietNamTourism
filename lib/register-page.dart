@@ -1,8 +1,6 @@
 import 'dart:convert';
-
+import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
-
-import 'api.dart';
 
 class RegisterPage extends StatefulWidget {
   @override
@@ -15,27 +13,52 @@ class _RegisterPageState extends State<RegisterPage> {
   final _controller3 = TextEditingController();
   final _controller4 = TextEditingController();
 
-  bool RegisterCheck(String username, String nick, String pass) {
-    Iterable s = [];
-    API(url: "http://10.0.2.2/vietnamtourism/api/dang_ki.php?username=$username&nick=$nick&password=$pass")
-        .getDataString()
-        .then((value) {
-      if (s.isNotEmpty) {
-        s = [];
-      }
-      s = json.decode(value);
-
-      setState(() {});
-    });
-    if (s.length > 0) {
-      return false;
-    } else {
-      return true;
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
+    Future RegisterCheck(String username, String nick, String pass) async {
+      Iterable s = [];
+      String url =
+          "http://10.0.2.2/vietnamtourism/api/dang_ki.php?username=$username&nick=$nick&password=$pass";
+      var res = await http.get(Uri.parse(url));
+      var resBody = json.decode(res.body);
+      setState(() {
+        s = resBody;
+        print(s);
+      });
+      if (s.isEmpty) {
+        showDialog(
+            context: context,
+            builder: (BuildContext) => AlertDialog(
+                  title: Text('Thông báo'),
+                  content: Text('Đăng ký thành công'),
+                  actions: <Widget>[
+                    TextButton(
+                      onPressed: () {
+                        Navigator.pop(context);
+                        Navigator.pop(context);
+                      },
+                      child: Text("OK"),
+                    ),
+                  ],
+                ));
+      } else {
+        showDialog(
+            context: context,
+            builder: (BuildContext) => AlertDialog(
+                  title: Text('Thông báo'),
+                  content: Text('Đăng ký thất bại'),
+                  actions: <Widget>[
+                    TextButton(
+                      onPressed: () {
+                        Navigator.pop(context);
+                      },
+                      child: Text("OK"),
+                    ),
+                  ],
+                ));
+      }
+    }
+
     return Scaffold(
       backgroundColor: Color(0xff1278f3),
       appBar: AppBar(title: Text('Đăng ký'), centerTitle: true),
@@ -145,24 +168,8 @@ class _RegisterPageState extends State<RegisterPage> {
                               ],
                             ));
                   } else if (_controller3.text == _controller4.text) {
-                    if (RegisterCheck(_controller1.text, _controller2.text,
-                        _controller3.text)) {
-                      showDialog(
-                          context: context,
-                          builder: (BuildContext) => AlertDialog(
-                                title: Text('Thông báo'),
-                                content: Text('Đăng ký thành công'),
-                                actions: <Widget>[
-                                  TextButton(
-                                    onPressed: () {
-                                      Navigator.pop(context);
-                                      Navigator.pop(context);
-                                    },
-                                    child: Text("OK"),
-                                  ),
-                                ],
-                              ));
-                    }
+                    RegisterCheck(_controller1.text, _controller2.text,
+                        _controller3.text);
                   } else {
                     showDialog(
                         context: context,
