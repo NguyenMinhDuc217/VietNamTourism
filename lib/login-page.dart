@@ -54,7 +54,7 @@ class _LoginPageState extends State<LoginPage> {
               context,
               MaterialPageRoute(
                   builder: (context) =>
-                      MyHomePage(tk: _taiKhoan.elementAt(0))));
+                      MyHomePage(id: s.elementAt(0)["id"].toString())));
         }
         // Navigator.push(
         //     context, MaterialPageRoute(builder: (context) => MyHomePage()));

@@ -1,10 +1,13 @@
 // ignore_for_file: prefer_const_constructors, prefer_const_literals_to_create_immutables, unused_import, prefer_final_fields
 
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:vietnamtourism/diadanhluutru.dart';
-import 'package:vietnamtourism/model/tai-khoan.dart';
 import 'package:vietnamtourism/personal-info.dart';
+import 'package:vietnamtourism/trangcanhan.dart';
 import './vung.dart';
+import 'package:http/http.dart' as http;
 import 'chitietvung.dart';
 import 'destination.dart';
 import 'login-page.dart';
@@ -29,31 +32,41 @@ class MyApp extends StatelessWidget {
 }
 
 class MyHomePage extends StatefulWidget {
-  MyHomePage({required this.tk});
-  final ThongTinTaiKhoan tk;
+  MyHomePage({required this.id});
+  final String id;
   @override
   State<MyHomePage> createState() => _MyHomePageState();
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  
+  Iterable user = [];
   int selectedIndex = 0;
-  Widget _diaDanh = DiaDanh();
-  Widget _diaDanhLuuTru = DiaDanhLuuTru();
-  Widget _vung = Vung();
-  Widget _taiKhoan = TaiKhoan();
-  
+  List<Widget> pageList = <Widget>[
+    Column(),
+    DiaDanhLuuTru(),
+    Column(),
+  ];
 
-  Widget getBody() {
-    if (this.selectedIndex == 0) {
-      return this._diaDanh;
-    } else if (this.selectedIndex == 1) {
-      return this._diaDanhLuuTru;
-    } else if (this.selectedIndex == 2) {
-      return this._vung;
-    } else {
-      return this._taiKhoan;
-    }
+  Future<String> layInfoUser() async {
+    String userid = widget.id;
+    String url =
+        "http://10.0.2.2/vietnamtourism/api/lay_thong_tin_tai_khoan.php?id=$userid";
+    var res = await http.get(Uri.parse(url));
+    var resBody = json.decode(res.body);
+    setState(() {
+      user = resBody;
+      print(user);
+      pageList[0] = DiaDanh(userId: widget.id);
+      pageList[2] = Vung(userId: widget.id);
+
+    });
+    return "Sucess";
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    this.layInfoUser();
   }
 
   @override
@@ -62,8 +75,22 @@ class _MyHomePageState extends State<MyHomePage> {
       appBar: AppBar(
         centerTitle: true,
         title: Text('Viet Name Tourism'),
+        actions: [
+          Padding(
+            padding: EdgeInsets.only(right: 20),
+            child: CircleAvatar(
+                radius: 20,
+                backgroundImage: AssetImage('assets/images/santorini.jpg'),
+                child: InkWell(
+                  borderRadius: BorderRadius.circular(30),
+                  onTap: () {
+                    Navigator.push(context, MaterialPageRoute(builder: (context)=>TaiKhoan(id: user.elementAt(0)["id"].toString(),userId: user.elementAt(0)["id"].toString(),)));
+                  },
+                )),
+          )
+        ],
       ),
-      body: this.getBody(),
+      body: pageList[selectedIndex],
       drawer: Drawer(
           child: ListView(
         padding: EdgeInsets.zero,
@@ -76,16 +103,17 @@ class _MyHomePageState extends State<MyHomePage> {
                 children: [
                   CircleAvatar(
                       radius: 30,
-                      backgroundImage: AssetImage('assets/images/santorini.jpg'),
+                      backgroundImage:
+                          AssetImage('assets/images/santorini.jpg'),
                       child: InkWell(
                         borderRadius: BorderRadius.circular(30),
                         onTap: () {},
                       )),
                   Container(
                       margin: EdgeInsets.only(left: 20),
-                      child: Flexible(child:Text(
-                        widget.tk.ten_nguoi_dung,
-                        //'PaHuHo',
+                      child: Flexible(
+                          child: Text(
+                        user.elementAt(0)["ten_nguoi_dung"].toString(),
                         style: TextStyle(fontSize: 15),
                       ))),
                 ],
@@ -95,11 +123,19 @@ class _MyHomePageState extends State<MyHomePage> {
               children: [
                 Icon(Icons.person),
                 Container(
-                    margin: EdgeInsets.only(left: 10), child: Text('Thông tin cá nhân')),
+                    margin: EdgeInsets.only(left: 10),
+                    child: Text('Thông tin cá nhân')),
               ],
             ),
             onTap: () {
-              Navigator.push(context,  MaterialPageRoute(builder: (context)=>InfoPersonal(id:widget.tk.id.toString())));
+              Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) => InfoPersonal(
+                              id: user.elementAt(0)["id"].toString())))
+                  .then((value) {
+                this.layInfoUser();
+              });
             },
           ),
           ListTile(
@@ -119,46 +155,31 @@ class _MyHomePageState extends State<MyHomePage> {
       )),
       bottomNavigationBar: BottomNavigationBar(
         type: BottomNavigationBarType.fixed,
-        currentIndex: this.selectedIndex,
+        currentIndex: selectedIndex,
         items: [
           BottomNavigationBarItem(
             icon: Icon(Icons.edit_location),
-            title: Text('Địa danh'),
+            label: 'Địa danh',
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.edit_location_outlined),
-            title: Text('Địa danh lưu trú'),
+            label: 'Địa danh lưu trú',
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.add_location_alt_rounded),
-            title: Text('Vùng'),
+            label: 'Vùng',
           ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.account_circle),
-            title: Text('Cá nhân'),
-          ),
+          // BottomNavigationBarItem(
+          //   icon: Icon(Icons.account_circle),
+          //   label: 'Cá nhân',
+          // ),
         ],
-        onTap: (int index) {
-          this.onTapHandler(index);
+        onTap: (value) {
+          setState(() {
+            selectedIndex = value;
+          });
         },
       ),
     );
-  }
-
-  void onTapHandler(int index) {
-    this.setState(() {
-      this.selectedIndex = index;
-    });
-  }
-}
-class TaiKhoan extends StatefulWidget {
-  @override
-  State<TaiKhoan> createState() => _TaiKhoanState();
-}
-
-class _TaiKhoanState extends State<TaiKhoan> {
-  @override
-  Widget build(BuildContext context) {
-    return Center(child: Text('Tài khoản'));
   }
 }

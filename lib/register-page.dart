@@ -175,7 +175,7 @@ class _RegisterPageState extends State<RegisterPage> {
                         context: context,
                         builder: (BuildContext) => AlertDialog(
                               title: Text('Thông báo'),
-                              content: Text('mật khẩu không trùng nhau !!!'),
+                              content: Text('Hai mật khẩu không trùng nhau !!!'),
                               actions: <Widget>[
                                 TextButton(
                                   onPressed: () {

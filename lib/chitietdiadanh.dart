@@ -1,20 +1,26 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 import 'package:map_launcher/map_launcher.dart';
+import 'package:vietnamtourism/danhsachbaiviet.dart';
 
 import 'api.dart';
 
 class ChiTietDiaDanh extends StatefulWidget {
-  ChiTietDiaDanh({Key? key, required this.diaDanhId}) : super(key: key);
+  ChiTietDiaDanh({Key? key, required this.diaDanhId, required this.userId})
+      : super(key: key);
   final String diaDanhId;
+  final String userId;
   @override
   State<ChiTietDiaDanh> createState() => _ChiTietDiaDanhState();
 }
 
 class _ChiTietDiaDanhState extends State<ChiTietDiaDanh> {
   Iterable diaDanh = [];
+  Iterable baiViet = [];
+  Iterable diaDanhLuuTru = [];
   bool isUpdate = true;
   Future<void> _openGoogleMap(double x, double y) async {
     final availableMaps = await MapLauncher.installedMaps;
@@ -36,6 +42,41 @@ class _ChiTietDiaDanhState extends State<ChiTietDiaDanh> {
     );
   }
 
+  Future<String> layDSDiaDanhLuuTru() async {
+    String diaDanhid = widget.diaDanhId;
+    String url =
+        "http://10.0.2.2/vietnamtourism/api/lay_ds_dia_danh_luu_tru.php?id=$diaDanhid";
+    var res = await http.get(Uri.parse(url));
+    var resBody = json.decode(res.body);
+    setState(() {
+      diaDanhLuuTru = resBody;
+      print(diaDanhLuuTru);
+    });
+
+    return "Sucess";
+  }
+
+  Future<String> layBaiVietOfUser() async {
+    String diaDanhid = widget.diaDanhId;
+    String url =
+        "http://10.0.2.2/vietnamtourism/api/lay_ds_bai_viet_theo_dia_danh.php?id=$diaDanhid";
+    var res = await http.get(Uri.parse(url));
+    var resBody = json.decode(res.body);
+    setState(() {
+      baiViet = resBody;
+      print(baiViet);
+    });
+
+    return "Sucess";
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    this.layBaiVietOfUser();
+    this.layDSDiaDanhLuuTru();
+  }
+
   @override
   Widget build(BuildContext context) {
     if (isUpdate == true) {
@@ -53,8 +94,8 @@ class _ChiTietDiaDanhState extends State<ChiTietDiaDanh> {
         children: <Widget>[
           Stack(
             children: [
-              Image.network(
-                'https://upload.wikimedia.org/wikipedia/commons/thumb/2/21/Flag_of_Vietnam.svg/1200px-Flag_of_Vietnam.svg.png',
+              Image.asset(
+                'assets/images/newyork.jpg',
                 height: 280,
                 width: MediaQuery.of(context).size.width,
                 fit: BoxFit.cover,
@@ -86,18 +127,38 @@ class _ChiTietDiaDanhState extends State<ChiTietDiaDanh> {
                             ),
                           ),
                           Spacer(),
-                          Icon(
-                            Icons.share,
-                            color: Colors.white,
-                            size: 24,
-                          ),
-                          SizedBox(
-                            width: 24,
-                          ),
-                          Icon(
-                            Icons.favorite,
-                            color: Colors.white,
-                            size: 24,
+                          Row(
+                            children: [
+                              IconButton(
+                                  onPressed: () {},
+                                  icon: Icon(
+                                    Icons.share,
+                                    color: Colors.white,
+                                    size: 24,
+                                  )),
+                              baiViet.length.toString() != "0"
+                                  ? GestureDetector(
+                                      onTap: () {
+                                        Navigator.push(
+                                            context,
+                                            MaterialPageRoute(
+                                                builder: (context) =>
+                                                    BaiVietDiaDanh(
+                                                      diaDanhId:
+                                                          widget.diaDanhId,
+                                                      userId: widget.userId,
+                                                    )));
+                                      },
+                                      child: Text(
+                                        "( " +
+                                            baiViet.length.toString() +
+                                            " chia sẻ )",
+                                        style: TextStyle(
+                                            fontSize: 18, color: Colors.white),
+                                      ),
+                                    )
+                                  : Text("")
+                            ],
                           )
                         ],
                       ),
@@ -111,21 +172,35 @@ class _ChiTietDiaDanhState extends State<ChiTietDiaDanh> {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Text(
-                                diaDanh.elementAt(0)["ten_dia_danh"].toString(),
-                                style: TextStyle(
-                                    color: Colors.white,
-                                    fontWeight: FontWeight.w600,
-                                    fontSize: 23),
-                              ),
-                              _buildRatingStars(double.parse(diaDanh
-                                  .elementAt(0)['sao_danh_gia']
-                                  .toString())),
-                            ],
+                          Text(
+                            diaDanh.elementAt(0)["ten_dia_danh"].toString(),
+                            style: TextStyle(
+                                color: Colors.white,
+                                fontWeight: FontWeight.w600,
+                                fontSize: 23),
                           ),
+                          SizedBox(
+                            height: 12,
+                          ),
+                          Row(
+                            mainAxisAlignment : MainAxisAlignment.spaceBetween,
+                            children: [
+                            _buildRatingStars(double.parse(
+                              diaDanh.elementAt(0)['sao_danh_gia'].toString())),
+                            Container(
+                                  padding: EdgeInsets.all(5.0),
+                                  width: 100.0,
+                                  decoration: BoxDecoration(
+                                    color: Colors.lightBlue,
+                                    borderRadius: BorderRadius.circular(10.0),
+                                  ),
+                                  alignment: Alignment.center,
+                                  child: Text(
+                                    diaDanh.elementAt(0)["ten_loai_dia_danh"].toString(),
+                                    style: TextStyle(fontSize: 15,color: Colors.white),
+                                  ),
+                                ),
+                          ],),
                           SizedBox(
                             height: 12,
                           ),
@@ -151,7 +226,7 @@ class _ChiTietDiaDanhState extends State<ChiTietDiaDanh> {
           Expanded(
             child: ListView.builder(
               padding: EdgeInsets.only(top: 10.0, bottom: 15.0),
-              itemCount: 3,
+              itemCount: diaDanhLuuTru.length,
               itemBuilder: (BuildContext context, int index) {
                 return Stack(
                   children: <Widget>[
@@ -176,7 +251,9 @@ class _ChiTietDiaDanhState extends State<ChiTietDiaDanh> {
                                 Container(
                                   width: 120.0,
                                   child: Text(
-                                    'Thung lũng tình yêu',
+                                    diaDanhLuuTru
+                                        .elementAt(index)["ten"]
+                                        .toString(),
                                     style: TextStyle(
                                       fontSize: 18.0,
                                       fontWeight: FontWeight.w600,
@@ -185,32 +262,41 @@ class _ChiTietDiaDanhState extends State<ChiTietDiaDanh> {
                                     maxLines: 2,
                                   ),
                                 ),
-                                Column(
-                                  children: <Widget>[
-                                    Text(
-                                      '100000',
-                                      style: TextStyle(
-                                        fontSize: 22.0,
-                                        fontWeight: FontWeight.w600,
-                                      ),
-                                    ),
-                                    Text(
-                                      'per pax',
-                                      style: TextStyle(
-                                        color: Colors.grey[700],
-                                      ),
-                                    ),
-                                  ],
-                                ),
+                                // Column(
+                                //   children: <Widget>[
+                                //     Text(
+                                //       '100000',
+                                //       style: TextStyle(
+                                //         fontSize: 22.0,
+                                //         fontWeight: FontWeight.w600,
+                                //       ),
+                                //     ),
+                                //   ],
+                                // ),
+                                IconButton(
+                                    onPressed: () => _openGoogleMap(
+                                        double.parse(diaDanhLuuTru
+                                            .elementAt(index)['kinh_do']
+                                            .toString()),
+                                        double.parse(diaDanhLuuTru
+                                            .elementAt(index)['vi_do']
+                                            .toString())),
+                                    icon: Icon(Icons.map_outlined)),
                               ],
                             ),
                             Text(
-                              'abc',
+                              "Số điện thoại: " +
+                                  diaDanhLuuTru
+                                      .elementAt(index)["sdt"]
+                                      .toString(),
                               style: TextStyle(
+                                fontSize: 14,
                                 color: Colors.grey[700],
                               ),
                             ),
-                            _buildRatingStars(3),
+                            _buildRatingStars(double.parse(diaDanhLuuTru
+                                .elementAt(index)["sao_danh_gia"]
+                                .toString())),
                             SizedBox(height: 10.0),
                             Row(
                               children: <Widget>[
@@ -218,7 +304,7 @@ class _ChiTietDiaDanhState extends State<ChiTietDiaDanh> {
                                   padding: EdgeInsets.all(5.0),
                                   width: 70.0,
                                   decoration: BoxDecoration(
-                                    color: Theme.of(context).accentColor,
+                                    color: Colors.lightBlue,
                                     borderRadius: BorderRadius.circular(10.0),
                                   ),
                                   alignment: Alignment.center,
@@ -231,7 +317,7 @@ class _ChiTietDiaDanhState extends State<ChiTietDiaDanh> {
                                   padding: EdgeInsets.all(5.0),
                                   width: 70.0,
                                   decoration: BoxDecoration(
-                                    color: Theme.of(context).accentColor,
+                                    color: Colors.lightBlue,
                                     borderRadius: BorderRadius.circular(10.0),
                                   ),
                                   alignment: Alignment.center,
@@ -251,9 +337,11 @@ class _ChiTietDiaDanhState extends State<ChiTietDiaDanh> {
                       bottom: 15.0,
                       child: ClipRRect(
                         borderRadius: BorderRadius.circular(20.0),
-                        child: Image.network(
-                            'https://t-cf.bstatic.com/xdata/images/hotel/max1280x900/264037166.jpg?k=9a7b5015488129317b1d1bd9ad9eb862569b800d061d027c73e5f5281ac80432&o=&hp=1',
-                            width: 110),
+                        child: Image.asset(
+                          'assets/images/hotel2.jpg',
+                          width: 110,
+                          fit: BoxFit.cover,
+                        ),
                       ),
                     ),
                   ],

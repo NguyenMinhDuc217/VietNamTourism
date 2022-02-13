@@ -4,9 +4,12 @@ import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 import 'package:map_launcher/map_launcher.dart';
 import 'package:vietnamtourism/chitietdiadanh.dart';
 import 'package:http/http.dart' as http;
+import 'package:vietnamtourism/share-destination.dart';
 import 'api.dart';
 
 class DiaDanh extends StatefulWidget {
+  DiaDanh({Key? key ,required this.userId}) : super(key: key);
+  final String userId;
   @override
   State<DiaDanh> createState() => _DiaDanhState();
 }
@@ -60,7 +63,7 @@ class _DiaDanhState extends State<DiaDanh> {
   }
 
   Future<String> layVung() async {
-    String url = "http://10.0.2.2/vietnamtourism/api/lay_ds_vung.php";
+    String url = "http://10.0.2.2/vietnamtourism/api/lay_ds_vung.php?ver=1";
     var res = await http.get(Uri.parse(url));
     var resBody = json.decode(res.body);
     setState(() {
@@ -138,8 +141,8 @@ class _DiaDanhState extends State<DiaDanh> {
                           if (isFind == true) {
                             dsFind = dsDiaDanh.where((element) =>
                                 element["ten_dia_danh"]
-                                    .toString()
-                                    .startsWith(_controller.text));
+                                    .toString().toLowerCase()
+                                    .contains(_controller.text.toLowerCase()));
                           } else {
                             dsFind = dsDiaDanh;
                           }
@@ -215,8 +218,8 @@ class _DiaDanhState extends State<DiaDanh> {
                           if (isFind == true) {
                             dsFind = dsDiaDanh.where((element) =>
                                 element["ten_dia_danh"]
-                                    .toString()
-                                    .startsWith(_controller.text));
+                                    .toString().toLowerCase()
+                                    .contains(_controller.text.toLowerCase()));
                           } else {
                             dsFind = dsDiaDanh;
                           }
@@ -292,8 +295,8 @@ class _DiaDanhState extends State<DiaDanh> {
                           if (isFind == true) {
                             dsFind = dsDiaDanh.where((element) =>
                                 element["ten_dia_danh"]
-                                    .toString()
-                                    .startsWith(_controller.text));
+                                    .toString().toLowerCase()
+                                    .contains(_controller.text.toLowerCase()));
                           } else {
                             dsFind = dsDiaDanh;
                           }
@@ -348,6 +351,7 @@ class _DiaDanhState extends State<DiaDanh> {
                       MaterialPageRoute(
                           builder: (context) => ChiTietDiaDanh(
                                 diaDanhId: ds.elementAt(index)['id'].toString(),
+                                userId: widget.userId,
                               )));
                 },
                 child: Stack(
@@ -371,23 +375,24 @@ class _DiaDanhState extends State<DiaDanh> {
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: <Widget>[
                                 Container(
-                                  width: 200.0,
+                                  width: 210.0,
                                   child: Text(
                                     ds
                                         .elementAt(index)['ten_dia_danh']
                                         .toString(),
                                     style: TextStyle(
-                                      fontSize: 20.0,
+                                      fontSize: 18.0,
                                       fontWeight: FontWeight.w600,
                                     ),
-                                    overflow: TextOverflow.fade,
-                                    maxLines: 4,
+                                    overflow: TextOverflow.ellipsis,
+                                    maxLines: 3,
                                   ),
                                 ),
                               ],
                             ),
                             Text(
                               ds.elementAt(index)['mo_ta'].toString(),
+                              overflow: TextOverflow.ellipsis,
                               style: TextStyle(
                                 color: Colors.grey,
                               ),
@@ -397,13 +402,30 @@ class _DiaDanhState extends State<DiaDanh> {
                                 .toString())),
                             SizedBox(height: 10.0),
                             Row(
+                              children: <Widget>[                               
+                                Container(
+                                  padding: EdgeInsets.all(5.0),
+                                  width: 100.0,
+                                  decoration: BoxDecoration(
+                                    color: Colors.lightBlue,
+                                    borderRadius: BorderRadius.circular(10.0),
+                                  ),
+                                  alignment: Alignment.center,
+                                  child: Text(
+                                    ds.elementAt(index)["ten_loai_dia_danh"].toString(),
+                                  ),
+                                ),
+                              ],
+                            ),
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: <Widget>[
-                                IconButton(
-                                    onPressed: () {},
-                                    icon: Icon(Icons.thumb_up_alt_outlined)),
-                                IconButton(
-                                    onPressed: () {},
-                                    icon: Icon(Icons.thumb_down_alt_outlined)),
+                                // IconButton(
+                                //     onPressed: () {},
+                                //     icon: Icon(Icons.thumb_up_alt_outlined)),
+                                // IconButton(
+                                //     onPressed: () {},
+                                //     icon: Icon(Icons.thumb_down_alt_outlined)),
                                 IconButton(
                                     onPressed: () => _openGoogleMap(
                                         double.parse(ds
@@ -415,7 +437,9 @@ class _DiaDanhState extends State<DiaDanh> {
                                     icon: Icon(Icons.map_outlined)),
                                 Flexible(
                                     child: IconButton(
-                                        onPressed: () {},
+                                        onPressed: () {
+                                          Navigator.push(context, MaterialPageRoute(builder: (context)=>ShareDestination(userId: widget.userId, diaDanhId:ds.elementAt(index)["id"].toString(), )));
+                                        },
                                         icon: Icon(Icons.share))),
                               ],
                             ),
@@ -429,11 +453,8 @@ class _DiaDanhState extends State<DiaDanh> {
                       bottom: 15.0,
                       child: ClipRRect(
                         borderRadius: BorderRadius.circular(20.0),
-                        child: Image.network(
-                          'https://upload.wikimedia.org/wikipedia/commons/thumb/2/21/Flag_of_Vietnam.svg/1200px-Flag_of_Vietnam.svg.png',
-                          width: 110,
-                          fit: BoxFit.cover,
-                        ),
+                        child:Image.asset('assets/images/newyork.jpg', width: 110,
+                          fit: BoxFit.cover,),                          
                       ),
                     ),
                   ],
@@ -499,13 +520,13 @@ class _DiaDanhState extends State<DiaDanh> {
                           _mySelectionVung == "0") {
                       dsFind = dsDiaDanh.where((element) =>
                           element["ten_dia_danh"]
-                              .toString()
-                              .startsWith(_controller.text));
+                              .toString().toLowerCase()
+                              .contains(_controller.text.toLowerCase()));
                     } else {
                         dsFind = dsFind.where((element) =>
                             element["ten_dia_danh"]
-                                .toString()
-                                .startsWith(_controller.text));
+                                .toString().toLowerCase()
+                                .contains(_controller.text.toLowerCase()));
                     }
                     setState(() {
                       isFind = true;

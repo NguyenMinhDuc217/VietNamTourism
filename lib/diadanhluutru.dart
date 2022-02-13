@@ -1,33 +1,61 @@
+import 'dart:convert';
+import 'package:flutter_rating_bar/flutter_rating_bar.dart';
+import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
-class DiaDanhLuuTru extends StatefulWidget{
-    @override
-    State<DiaDanhLuuTru> createState()=>DiaDanhLucTruState();
-  }
-class DiaDanhLucTruState extends State<DiaDanhLuuTru>{
-  Text _buildRatingStars(int rating) {
-    String stars = '';
-    for (int i = 0; i < rating; i++) {
-      stars += '⭐ ';
-    }
-    stars.trim();
-    return Text(stars);
-  }
-  
+
+class DiaDanhLuuTru extends StatefulWidget {
   @override
-  Widget build(BuildContext context){
+  State<DiaDanhLuuTru> createState() => DiaDanhLucTruState();
+}
+
+class DiaDanhLucTruState extends State<DiaDanhLuuTru> {
+  Iterable diaDanhLuuTru = [];
+  Widget _buildRatingStars(double rating) {
+    return RatingBarIndicator(
+      rating: rating,
+      itemBuilder: (context, index) => Icon(
+        Icons.star,
+        color: Colors.amber,
+      ),
+      itemCount: 5,
+      itemSize: 30.0,
+    );
+  }
+
+  Future<String> layDSDiaDanhLuuTru() async {
+    String url =
+        "http://10.0.2.2/vietnamtourism/api/lay_ds_dia_danh_luu_tru.php?id=0";
+    var res = await http.get(Uri.parse(url));
+    var resBody = json.decode(res.body);
+    setState(() {
+      diaDanhLuuTru = resBody;
+      print(diaDanhLuuTru);
+    });
+
+    return "Sucess";
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    this.layDSDiaDanhLuuTru();
+  }
+
+  @override
+  Widget build(BuildContext context) {
     return Scaffold(
       body: Column(
         children: <Widget>[
           Expanded(
-            child: ListView.builder(
+            child: ListView.builder(        
               padding: EdgeInsets.only(top: 10.0, bottom: 10.0),
-              itemCount: 3,
+              itemCount: diaDanhLuuTru.length,
               itemBuilder: (BuildContext context, int index) {
                 return Stack(
                   children: <Widget>[
                     Container(
                       margin: EdgeInsets.fromLTRB(40.0, 0, 20.0, 0),
-                      height: 200.0,
+                      height: 210.0,
                       width: double.infinity,
                       decoration: BoxDecoration(
                         color: Colors.white,
@@ -46,7 +74,9 @@ class DiaDanhLucTruState extends State<DiaDanhLuuTru>{
                                 Container(
                                   width: 200.0,
                                   child: Text(
-                                    'King Hotel Dalat',
+                                    diaDanhLuuTru
+                                        .elementAt(index)["ten"]
+                                        .toString(),
                                     style: TextStyle(
                                       fontSize: 20.0,
                                       fontWeight: FontWeight.w600,
@@ -57,24 +87,25 @@ class DiaDanhLucTruState extends State<DiaDanhLuuTru>{
                                 ),
                               ],
                             ),
+                            SizedBox(height: 10,),
                             Text(
-                              'Khách sạn hàng đầu tại thành phố Đà Lạt',
+                              'Số điện thoại: ' +
+                                  diaDanhLuuTru
+                                      .elementAt(index)['sdt']
+                                      .toString(),
                               style: TextStyle(
                                 color: Colors.grey,
                               ),
                             ),
-                            _buildRatingStars(4),
-                            SizedBox(height: 10.0),
+                            SizedBox(height: 10,),
+                            _buildRatingStars(double.parse(diaDanhLuuTru
+                                .elementAt(index)['sao_danh_gia']
+                                .toString())),
                             Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: <Widget>[
                                 IconButton(
                                     onPressed: () {},
-                                    icon: Icon(Icons.thumb_up_alt_outlined)),
-                                IconButton(
-                                    onPressed: () {},
-                                    icon: Icon(Icons.thumb_down_alt_outlined)),
-                                IconButton(
-                                    onPressed: (){},
                                     icon: Icon(Icons.map_outlined)),
                                 Flexible(
                                     child: IconButton(
@@ -92,8 +123,8 @@ class DiaDanhLucTruState extends State<DiaDanhLuuTru>{
                       bottom: 15.0,
                       child: ClipRRect(
                         borderRadius: BorderRadius.circular(20.0),
-                        child: Image.network(
-                          'https://t-cf.bstatic.com/xdata/images/hotel/max1280x900/264037166.jpg?k=9a7b5015488129317b1d1bd9ad9eb862569b800d061d027c73e5f5281ac80432&o=&hp=1',
+                        child: Image.asset(
+                          'assets/images/hotel2.jpg',
                           width: 110,
                           fit: BoxFit.cover,
                         ),
