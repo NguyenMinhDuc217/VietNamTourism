@@ -3,6 +3,9 @@ import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
 import 'package:vietnamtourism/chitietdiadanh.dart';
+import 'package:vietnamtourism/model/bai-viet.dart';
+
+import 'api.dart';
 
 class TaiKhoan extends StatefulWidget {
   TaiKhoan({Key? key, required this.id, required this.userId})
@@ -14,10 +17,67 @@ class TaiKhoan extends StatefulWidget {
 }
 
 class _TaiKhoanState extends State<TaiKhoan> {
+  List<BaiViet> lstBaiViet = [];
   Iterable user = [];
-  Iterable baiViet = [];
   Iterable ttUser = [];
+
   //Iterable tuongTac = [];
+  Future<String> loadBaiViet() async {
+    String useridOfBaiViet = widget.id;
+    String useridXem = widget.userId;
+    Iterable baiViet = [];
+    Iterable tuongTac = [];
+    if (lstBaiViet.length > 0) {
+      lstBaiViet.clear();
+    }
+    API(url: "http://10.0.2.2/vietnamtourism/api/lay_ds_bai_viet.php?id=$useridOfBaiViet")
+        .getDataString()
+        .then((value) {
+      baiViet = json.decode(value);
+      for (int i = 0; i < baiViet.length; i++) {
+        String id = baiViet.elementAt(i)["id"].toString();
+        API(url: "http://10.0.2.2/vietnamtourism/api/lay_tuong_tac.php?user_id=$useridXem&bai_viet_id=$id")
+            .getDataString()
+            .then((value) {
+          tuongTac = json.decode(value);
+          setState(() {
+            BaiViet bv = BaiViet(
+                id,
+                baiViet.elementAt(i)["ten_dia_danh"].toString(),
+                user.elementAt(0)["ten_nguoi_dung"].toString(),
+                baiViet.elementAt(i)["tai_khoan_id"].toString(),
+                baiViet.elementAt(i)["dia_danh_id"].toString(),
+                baiViet.elementAt(i)["cam_nghi"].toString(),
+                baiViet.elementAt(i)["danh_gia"].toString(),
+                baiViet.elementAt(i)["so_luong_like"].toString(),
+                baiViet.elementAt(i)["so_luong_unlike"].toString(),
+                baiViet.elementAt(i)["so_luong_view"].toString(),
+                baiViet.elementAt(i)["thoi_gian"].toString(),
+                tuongTac);
+            lstBaiViet.add(bv);
+          });
+        });
+      }
+
+      setState(() {});
+    });
+
+    return "Succes";
+  }
+
+  Future UpdateTuongTac(String baiVietId, String trangThai,String isLike) async {
+    String userid = widget.userId;
+    Iterable s = [];
+    print(isLike);
+    String url =
+        "http://10.0.2.2/vietnamtourism/api/thay_doi_tuong_tac.php?trang_thai_like=$trangThai&bai_viet_id=$baiVietId&user_id=$userid&islike=$isLike";
+    var res = await http.get(Uri.parse(url));
+    var resBody = json.decode(res.body);
+    setState(() {
+      s = resBody;
+      print(s);
+    });
+  }
 
   Future<String> layInfoUser() async {
     String userid = widget.id;
@@ -44,24 +104,21 @@ class _TaiKhoanState extends State<TaiKhoan> {
   //     tuongTac = resBody;
   //     print(tuongTac);
   //   });
-
   //   return "Sucess";
   // }
 
-  Future<String> layBaiVietOfUser() async {
-    String userid = widget.id;
-
-    String url =
-        "http://10.0.2.2/vietnamtourism/api/lay_ds_bai_viet.php?id=$userid";
-    var res = await http.get(Uri.parse(url));
-    var resBody = json.decode(res.body);
-    setState(() {
-      baiViet = resBody;
-      print(baiViet);
-    });
-
-    return "Sucess";
-  }
+  // Future<String> layBaiVietOfUser() async {
+  //   String userid = widget.id;
+  //   String url =
+  //       "http://10.0.2.2/vietnamtourism/api/lay_ds_bai_viet.php?id=$userid";
+  //   var res = await http.get(Uri.parse(url));
+  //   var resBody = json.decode(res.body);
+  //   setState(() {
+  //     baiViet = resBody;
+  //     print(baiViet);
+  //   });
+  //   return "Sucess";
+  // }
 
   Future<String> layTrangThaiOfUser() async {
     String userid = widget.id;
@@ -81,8 +138,8 @@ class _TaiKhoanState extends State<TaiKhoan> {
   void initState() {
     super.initState();
     this.layInfoUser();
-    this.layBaiVietOfUser();
     this.layTrangThaiOfUser();
+    this.loadBaiViet();
   }
 
   @override
@@ -108,6 +165,7 @@ class _TaiKhoanState extends State<TaiKhoan> {
         title: Text(text),
       );
     }
+
     Widget _TrangThaiTrong() {
       if (ttUser.elementAt(0)["tt_ten"].toString() == "2" &&
           ttUser.elementAt(0)["tt_email"].toString() == "2" &&
@@ -147,7 +205,6 @@ class _TaiKhoanState extends State<TaiKhoan> {
                       style:
                           TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
                     ),
-                    
                   ),
                   _TrangThaiTrong(),
                   ttUser.elementAt(0)["tt_ten"].toString() == "1"
@@ -166,168 +223,152 @@ class _TaiKhoanState extends State<TaiKhoan> {
               ),
             ),
             Column(
-              children: List.generate(baiViet.length, (index) {
-                return Card(
-                        margin: const EdgeInsets.all(20),
-                        child: Padding(
-                          padding: EdgeInsets.all(5),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
+                children: List.generate(lstBaiViet.length, (index) {
+              return Card(
+                  margin: const EdgeInsets.all(20),
+                  child: Padding(
+                    padding: EdgeInsets.all(5),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        ListTile(
+                          leading: CircleAvatar(
+                            radius: 25,
+                            backgroundImage:
+                                AssetImage('assets/images/santorini.jpg'),
+                          ),
+                          title: Row(
+                            mainAxisSize: MainAxisSize.min,
                             children: [
-                              ListTile(
-                                leading: CircleAvatar(
-                                  radius: 25,
-                                  backgroundImage:
-                                      AssetImage('assets/images/santorini.jpg'),
-                                ),
-                                title: Row(
-                                  mainAxisSize: MainAxisSize.min,
-                                  children: [
-                                    Text(
-                                      user
-                                          .elementAt(0)["ten_nguoi_dung"]
-                                          .toString(),
-                                      style: const TextStyle(
+                              Text(
+                                user.elementAt(0)["ten_nguoi_dung"].toString(),
+                                style: const TextStyle(
+                                    fontWeight: FontWeight.bold),
+                              ),
+                              const Text(
+                                " đã chia sẽ về ",
+                              ),
+                              Flexible(
+                                child: InkWell(
+                                    onTap: () {
+                                      Navigator.push(
+                                          context,
+                                          MaterialPageRoute(
+                                              builder: (context) =>
+                                                  ChiTietDiaDanh(
+                                                      userId: widget.userId,
+                                                      diaDanhId:
+                                                          lstBaiViet[index]
+                                                              .diaDanhId)));
+                                    },
+                                    child: Text(
+                                      lstBaiViet[index].tenDiaDanh,
+                                      overflow: TextOverflow.ellipsis,
+                                      style: TextStyle(
                                           fontWeight: FontWeight.bold),
-                                    ),
-                                    const Text(
-                                      " đã chia sẽ về ",
-                                    ),
-                                    Flexible(
-                                      child: InkWell(
-                                          onTap: () {
-                                            Navigator.push(
-                                                context,
-                                                MaterialPageRoute(
-                                                    builder: (context) =>
-                                                        ChiTietDiaDanh(
-                                                            userId:
-                                                                widget.userId,
-                                                            diaDanhId: baiViet
-                                                                .elementAt(index)[
-                                                                    "dia_danh_id"]
-                                                                .toString())));
-                                          },
-                                          child: Text(
-                                            baiViet
-                                                .elementAt(
-                                                    index)["ten_dia_danh"]
-                                                .toString(),
-                                            overflow: TextOverflow.ellipsis,
-                                            style: TextStyle(
-                                                fontWeight: FontWeight.bold),
-                                          )),
-                                    ),
-                                  ],
-                                ),
-                                subtitle: Text(baiViet
-                                    .elementAt(index)["thoi_gian"]
-                                    .toString()),
+                                    )),
                               ),
-                              Padding(
-                                padding: EdgeInsets.fromLTRB(20, 10, 20, 10),
-                                child: _buildRatingStars(double.parse(baiViet
-                                    .elementAt(index)['danh_gia']
-                                    .toString())),
-                              ),
-                              Padding(
-                                padding: EdgeInsets.fromLTRB(20, 10, 20, 10),
-                                child: Text(
-                                  baiViet
-                                      .elementAt(index)["cam_nghi"]
-                                      .toString(),
-                                  style: TextStyle(fontSize: 18),
-                                ),
-                              ),
-                              Padding(
-                                padding: EdgeInsets.fromLTRB(20, 10, 20, 10),
-                                child: Image.asset('assets/images/paris.jpg'),
-                              ),
-                              Divider(
-                                color: Colors.black,
-                              ),
-                              Padding(
-                                padding: EdgeInsets.all(10),
-                                child: Row(
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceBetween,
-                                  children: [
-                                    Row(
-                                      children: [
-                                        IconButton(
-                                            onPressed: () {},
-                                            icon: baiViet
-                                                            .elementAt(index)[
-                                                                "trang_thai_like"]
-                                                            .toString() ==
-                                                        "1" &&
-                                                    baiViet
-                                                            .elementAt(index)[
-                                                                "user_id"]
-                                                            .toString() ==
-                                                        widget.userId
-                                                ? Icon(
-                                                    Icons.thumb_up_alt_rounded,
-                                                    color: Colors.blue,
-                                                  )
-                                                : Icon(Icons
-                                                    .thumb_up_alt_rounded)),
-                                        Text("(" +
-                                            baiViet
-                                                .elementAt(
-                                                    index)["so_luong_like"]
-                                                .toString() +
-                                            ")")
-                                      ],
-                                    ),
-                                    Row(
-                                      children: [
-                                        IconButton(
-                                            onPressed: () {},
-                                            icon: baiViet
-                                                            .elementAt(index)[
-                                                                "trang_thai_like"]
-                                                            .toString() ==
-                                                        "2" &&
-                                                    baiViet
-                                                            .elementAt(index)[
-                                                                "user_id"]
-                                                            .toString() ==
-                                                        widget.userId
-                                                ? Icon(
-                                                    Icons
-                                                        .thumb_down_alt_rounded,
-                                                    color: Colors.blue,
-                                                  )
-                                                : Icon(Icons
-                                                    .thumb_down_alt_rounded)),
-                                        Text("(" +
-                                            baiViet
-                                                .elementAt(
-                                                    index)["so_luong_unlike"]
-                                                .toString() +
-                                            ")")
-                                      ],
-                                    ),
-                                    Row(
-                                      children: [
-                                        Icon(Icons.remove_red_eye_sharp),
-                                        Text("(" +
-                                            baiViet
-                                                .elementAt(
-                                                    index)["so_luong_view"]
-                                                .toString() +
-                                            ")")
-                                      ],
-                                    ),
-                                  ],
-                                ),
-                              )
                             ],
                           ),
-                        ));
-              })
-            )
+                          subtitle: Text(lstBaiViet[index].thoiGian),
+                        ),
+                        Padding(
+                          padding: EdgeInsets.fromLTRB(20, 10, 20, 10),
+                          child: _buildRatingStars(
+                              double.parse(lstBaiViet[index].dangGia)),
+                        ),
+                        Padding(
+                          padding: EdgeInsets.fromLTRB(20, 10, 20, 10),
+                          child: Text(
+                            lstBaiViet[index].camNghi,
+                            style: TextStyle(fontSize: 18),
+                          ),
+                        ),
+                        Padding(
+                          padding: EdgeInsets.fromLTRB(20, 10, 20, 10),
+                          child: Image.asset('assets/images/paris.jpg'),
+                        ),
+                        Divider(
+                          color: Colors.black,
+                        ),
+                        Padding(
+                          padding: EdgeInsets.all(10),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Row(
+                                children: [
+                                  IconButton(
+                                      onPressed: () {
+                                        UpdateTuongTac(
+                                                lstBaiViet[index].id, "1",lstBaiViet[index].trangThaiLike.elementAt(0)["trang_thai_like"].toString())
+                                            .then((value) {
+                                           setState(() {
+                                            this.loadBaiViet();
+                                          });
+                                        });
+                                      },
+                                      icon: lstBaiViet[index]
+                                                  .trangThaiLike
+                                                  .elementAt(
+                                                      0)["trang_thai_like"]
+                                                  .toString() ==
+                                              "1"
+                                          ? Icon(
+                                              Icons.thumb_up_alt_rounded,
+                                              color: Colors.blue,
+                                            )
+                                          : Icon(Icons.thumb_up_alt_rounded)),
+                                  Text("(" +
+                                      lstBaiViet[index].soLuongLike.toString() +
+                                      ")")
+                                ],
+                              ),
+                              Row(
+                                children: [
+                                  IconButton(
+                                      onPressed: () {
+                                        UpdateTuongTac(
+                                                lstBaiViet[index].id, "2",lstBaiViet[index].trangThaiLike.elementAt(0)["trang_thai_like"].toString())
+                                            .then((value) {
+                                          setState(() {
+                                            this.loadBaiViet();
+                                          });
+                                        });
+                                      },
+                                      icon: lstBaiViet[index]
+                                                  .trangThaiLike
+                                                  .elementAt(
+                                                      0)["trang_thai_like"]
+                                                  .toString() ==
+                                              "2"
+                                          ? Icon(
+                                              Icons.thumb_down_alt_rounded,
+                                              color: Colors.blue,
+                                            )
+                                          : Icon(Icons.thumb_down_alt_rounded)),
+                                  Text("(" +
+                                      lstBaiViet[index]
+                                          .soLuongUnLike
+                                          .toString() +
+                                      ")")
+                                ],
+                              ),
+                              Row(
+                                children: [
+                                  Icon(Icons.remove_red_eye_sharp),
+                                  Text("(" +
+                                      lstBaiViet[index].soLuongView.toString() +
+                                      ")")
+                                ],
+                              ),
+                            ],
+                          ),
+                        )
+                      ],
+                    ),
+                  ));
+            }))
           ],
         ),
       ),

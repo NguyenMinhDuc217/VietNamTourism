@@ -6,6 +6,9 @@ import 'package:http/http.dart' as http;
 import 'package:vietnamtourism/chitietdiadanh.dart';
 import 'package:vietnamtourism/trangcanhan.dart';
 
+import 'api.dart';
+import 'model/bai-viet.dart';
+
 class BaiVietDiaDanh extends StatefulWidget {
   BaiVietDiaDanh({Key? key, required this.diaDanhId, required this.userId})
       : super(key: key);
@@ -16,25 +19,67 @@ class BaiVietDiaDanh extends StatefulWidget {
 }
 
 class _BaiVietDiaDanhState extends State<BaiVietDiaDanh> {
-  Iterable baiViet = [];
-  Future<String> layBaiVietOfUser() async {
+  List<BaiViet> lstBaiViet = [];
+  Future<String> loadBaiViet() async {
     String diaDanhid = widget.diaDanhId;
+    String useridXem = widget.userId;
+    Iterable baiViet = [];
+    Iterable tuongTac = [];
+    if (lstBaiViet.length > 0) {
+      lstBaiViet.clear();
+    }
+    API(url: "http://10.0.2.2/vietnamtourism/api/lay_ds_bai_viet_theo_dia_danh.php?id=$diaDanhid")
+        .getDataString()
+        .then((value) {
+      baiViet = json.decode(value);
+      for (int i = 0; i < baiViet.length; i++) {
+        String id = baiViet.elementAt(i)["id"].toString();
+        API(url: "http://10.0.2.2/vietnamtourism/api/lay_tuong_tac.php?user_id=$useridXem&bai_viet_id=$id")
+            .getDataString()
+            .then((value) {
+          tuongTac = json.decode(value);
+          setState(() {
+            BaiViet bv = BaiViet(
+                id,
+                baiViet.elementAt(i)["ten_dia_danh"].toString(),
+                baiViet.elementAt(i)["ten_nguoi_dung"].toString(),
+                baiViet.elementAt(i)["tai_khoan_id"].toString(),
+                baiViet.elementAt(i)["dia_danh_id"].toString(),
+                baiViet.elementAt(i)["cam_nghi"].toString(),
+                baiViet.elementAt(i)["danh_gia"].toString(),
+                baiViet.elementAt(i)["so_luong_like"].toString(),
+                baiViet.elementAt(i)["so_luong_unlike"].toString(),
+                baiViet.elementAt(i)["so_luong_view"].toString(),
+                baiViet.elementAt(i)["thoi_gian"].toString(),
+                tuongTac);
+            lstBaiViet.add(bv);
+          });
+        });
+      }
+
+      setState(() {});
+    });
+
+    return "Succes";
+  }
+  Future UpdateTuongTac(String baiVietId, String trangThai,String isLike) async {
+    String userid = widget.userId;
+    Iterable s = [];
+    print(isLike);
     String url =
-        "http://10.0.2.2/vietnamtourism/api/lay_ds_bai_viet_theo_dia_danh.php?id=$diaDanhid";
+        "http://10.0.2.2/vietnamtourism/api/thay_doi_tuong_tac.php?trang_thai_like=$trangThai&bai_viet_id=$baiVietId&user_id=$userid&islike=$isLike";
     var res = await http.get(Uri.parse(url));
     var resBody = json.decode(res.body);
     setState(() {
-      baiViet = resBody;
-      print(baiViet);
+      s = resBody;
+      print(s);
     });
-
-    return "Sucess";
   }
 
   @override
   void initState() {
     super.initState();
-    this.layBaiVietOfUser();
+  this.loadBaiViet();
   }
 
   @override
@@ -58,7 +103,7 @@ class _BaiVietDiaDanhState extends State<BaiVietDiaDanh> {
         ),
         body: SingleChildScrollView(
           child: Column(
-            children: List.generate(baiViet.length, (index) {
+            children: List.generate(lstBaiViet.length, (index) {
               return Card(
                   margin: EdgeInsets.fromLTRB(5, 10, 5, 10),
                   child: Padding(
@@ -81,17 +126,14 @@ class _BaiVietDiaDanhState extends State<BaiVietDiaDanh> {
                                       context,
                                       MaterialPageRoute(
                                           builder: (context) => TaiKhoan(
-                                                id: baiViet
-                                                    .elementAt(
-                                                        index)["tai_khoan_id"]
-                                                    .toString(),
+                                                id:lstBaiViet[index].taiKhoanId.toString(),
                                                 userId: widget.userId,
-                                              )));
+                                              ))).then((value){
+                                                this.loadBaiViet();
+                                              });
                                 },
                                 child: Text(
-                                  baiViet
-                                      .elementAt(index)["ten_nguoi_dung"]
-                                      .toString(),
+                                  lstBaiViet[index].ten_nguoi_dung.toString(),
                                   style: const TextStyle(
                                       fontWeight: FontWeight.bold),
                                 ),
@@ -108,15 +150,10 @@ class _BaiVietDiaDanhState extends State<BaiVietDiaDanh> {
                                               builder: (context) =>
                                                   ChiTietDiaDanh(
                                                       userId: widget.userId,
-                                                      diaDanhId: baiViet
-                                                          .elementAt(index)[
-                                                              "dia_danh_id"]
-                                                          .toString())));
+                                                      diaDanhId:  lstBaiViet[index].diaDanhId.toString())));
                                     },
                                     child: Text(
-                                      baiViet
-                                          .elementAt(index)["ten_dia_danh"]
-                                          .toString(),
+                                      lstBaiViet[index].tenDiaDanh.toString(),
                                       overflow: TextOverflow.ellipsis,
                                       style: TextStyle(
                                           fontWeight: FontWeight.bold),
@@ -124,18 +161,21 @@ class _BaiVietDiaDanhState extends State<BaiVietDiaDanh> {
                               ),
                             ],
                           ),
-                          subtitle: Text(
-                              baiViet.elementAt(index)["thoi_gian"].toString()),
+                          subtitle: Text(                          
+                              lstBaiViet[index].thoiGian.toString(),
+                              ),
                         ),
                         Padding(
                           padding: EdgeInsets.fromLTRB(20, 10, 20, 10),
                           child: _buildRatingStars(double.parse(
-                              baiViet.elementAt(index)['danh_gia'].toString())),
+                              lstBaiViet[index].dangGia.toString()
+                              )),
                         ),
                         Padding(
                           padding: EdgeInsets.fromLTRB(20, 10, 20, 10),
                           child: Text(
-                            baiViet.elementAt(index)["cam_nghi"].toString(),
+
+                            lstBaiViet[index].camNghi.toString(),
                             style: TextStyle(fontSize: 18),
                           ),
                         ),
@@ -154,52 +194,56 @@ class _BaiVietDiaDanhState extends State<BaiVietDiaDanh> {
                               Row(
                                 children: [
                                   IconButton(
-                                      onPressed: () {},
-                                      icon: baiViet
-                                                      .elementAt(index)[
-                                                          "trang_thai_like"]
-                                                      .toString() ==
-                                                  "1" &&
-                                              baiViet
-                                                      .elementAt(
-                                                          index)["user_id"]
-                                                      .toString() ==
-                                                  widget.userId
+                                      onPressed: () {
+                                         UpdateTuongTac(
+                                                lstBaiViet[index].id, "1",lstBaiViet[index].trangThaiLike.elementAt(0)["trang_thai_like"].toString())
+                                            .then((value) {
+                                           setState(() {
+                                            this.loadBaiViet();
+                                          });
+                                        });
+                                      },
+                                      icon: lstBaiViet[index]
+                                                  .trangThaiLike
+                                                  .elementAt(
+                                                      0)["trang_thai_like"]
+                                                  .toString() ==
+                                              "1"
                                           ? Icon(
                                               Icons.thumb_up_alt_rounded,
                                               color: Colors.blue,
                                             )
                                           : Icon(Icons.thumb_up_alt_rounded)),
                                   Text("(" +
-                                      baiViet
-                                          .elementAt(index)["so_luong_like"]
-                                          .toString() +
+                                       lstBaiViet[index].soLuongLike.toString() +
                                       ")")
                                 ],
                               ),
                               Row(
                                 children: [
                                   IconButton(
-                                      onPressed: () {},
-                                      icon: baiViet
-                                                      .elementAt(index)[
-                                                          "trang_thai_like"]
-                                                      .toString() ==
-                                                  "2" &&
-                                              baiViet
-                                                      .elementAt(
-                                                          index)["user_id"]
-                                                      .toString() ==
-                                                  widget.userId
+                                      onPressed: () {
+                                         UpdateTuongTac(
+                                                lstBaiViet[index].id, "2",lstBaiViet[index].trangThaiLike.elementAt(0)["trang_thai_like"].toString())
+                                            .then((value) {
+                                           setState(() {
+                                            this.loadBaiViet();
+                                          });
+                                        });
+                                      },
+                                      icon: lstBaiViet[index]
+                                                  .trangThaiLike
+                                                  .elementAt(
+                                                      0)["trang_thai_like"]
+                                                  .toString() ==
+                                              "2"
                                           ? Icon(
                                               Icons.thumb_down_alt_rounded,
                                               color: Colors.blue,
                                             )
                                           : Icon(Icons.thumb_down_alt_rounded)),
                                   Text("(" +
-                                      baiViet
-                                          .elementAt(index)["so_luong_unlike"]
-                                          .toString() +
+                                       lstBaiViet[index].soLuongUnLike.toString() +
                                       ")")
                                 ],
                               ),
@@ -207,9 +251,7 @@ class _BaiVietDiaDanhState extends State<BaiVietDiaDanh> {
                                 children: [
                                   Icon(Icons.remove_red_eye_sharp),
                                   Text("(" +
-                                      baiViet
-                                          .elementAt(index)["so_luong_view"]
-                                          .toString() +
+                                       lstBaiViet[index].soLuongView.toString() +
                                       ")")
                                 ],
                               ),
