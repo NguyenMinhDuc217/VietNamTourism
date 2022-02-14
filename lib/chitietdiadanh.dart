@@ -5,6 +5,7 @@ import 'package:http/http.dart' as http;
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 import 'package:map_launcher/map_launcher.dart';
 import 'package:vietnamtourism/danhsachbaiviet.dart';
+import 'package:vietnamtourism/share-destination.dart';
 
 import 'api.dart';
 
@@ -128,14 +129,7 @@ class _ChiTietDiaDanhState extends State<ChiTietDiaDanh> {
                           ),
                           Spacer(),
                           Row(
-                            children: [
-                              IconButton(
-                                  onPressed: () {},
-                                  icon: Icon(
-                                    Icons.share,
-                                    color: Colors.white,
-                                    size: 24,
-                                  )),
+                            children: [                             
                               baiViet.length.toString() != "0"
                                   ? GestureDetector(
                                       onTap: () {
@@ -157,7 +151,16 @@ class _ChiTietDiaDanhState extends State<ChiTietDiaDanh> {
                                             fontSize: 18, color: Colors.white),
                                       ),
                                     )
-                                  : Text("")
+                                  : Text(""),
+                                  IconButton(
+                                  onPressed: () {
+                                    Navigator.push(context, MaterialPageRoute(builder: (context)=>ShareDestination(userId: widget.userId, diaDanhId:widget.diaDanhId, )));
+                                  },
+                                  icon: Icon(
+                                    Icons.share,
+                                    color: Colors.white,
+                                    size: 24,
+                                  )),
                             ],
                           )
                         ],
@@ -281,7 +284,7 @@ class _ChiTietDiaDanhState extends State<ChiTietDiaDanh> {
                                         double.parse(diaDanhLuuTru
                                             .elementAt(index)['vi_do']
                                             .toString())),
-                                    icon: Icon(Icons.map_outlined)),
+                                    icon: Icon(Icons.location_on)),
                               ],
                             ),
                             Text(

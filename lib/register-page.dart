@@ -60,7 +60,7 @@ class _RegisterPageState extends State<RegisterPage> {
     }
 
     return Scaffold(
-      backgroundColor: Color(0xff1278f3),
+      backgroundColor: Colors.lightBlue,
       appBar: AppBar(title: Text('Đăng ký'), centerTitle: true),
       body: Center(
           child: SingleChildScrollView(

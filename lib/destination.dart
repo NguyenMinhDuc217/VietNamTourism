@@ -420,12 +420,6 @@ class _DiaDanhState extends State<DiaDanh> {
                             Row(
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: <Widget>[
-                                // IconButton(
-                                //     onPressed: () {},
-                                //     icon: Icon(Icons.thumb_up_alt_outlined)),
-                                // IconButton(
-                                //     onPressed: () {},
-                                //     icon: Icon(Icons.thumb_down_alt_outlined)),
                                 IconButton(
                                     onPressed: () => _openGoogleMap(
                                         double.parse(ds
@@ -434,7 +428,7 @@ class _DiaDanhState extends State<DiaDanh> {
                                         double.parse(ds
                                             .elementAt(index)['vi_do']
                                             .toString())),
-                                    icon: Icon(Icons.map_outlined)),
+                                    icon: Icon(Icons.location_on)),
                                 Flexible(
                                     child: IconButton(
                                         onPressed: () {

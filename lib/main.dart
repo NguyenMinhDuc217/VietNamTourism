@@ -107,7 +107,9 @@ class _MyHomePageState extends State<MyHomePage> {
                           AssetImage('assets/images/santorini.jpg'),
                       child: InkWell(
                         borderRadius: BorderRadius.circular(30),
-                        onTap: () {},
+                        onTap: () {
+                          Navigator.push(context, MaterialPageRoute(builder: (context)=>TaiKhoan(id: user.elementAt(0)["id"].toString(),userId: user.elementAt(0)["id"].toString(),)));
+                        },
                       )),
                   Container(
                       margin: EdgeInsets.only(left: 20),

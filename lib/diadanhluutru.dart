@@ -106,7 +106,7 @@ class DiaDanhLucTruState extends State<DiaDanhLuuTru> {
                               children: <Widget>[
                                 IconButton(
                                     onPressed: () {},
-                                    icon: Icon(Icons.map_outlined)),
+                                    icon: Icon(Icons.location_on)),
                                 Flexible(
                                     child: IconButton(
                                         onPressed: () {},

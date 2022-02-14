@@ -76,22 +76,19 @@ class _LoginPageState extends State<LoginPage> {
       }
     }
 
-    Widget imgSection = Image.network(
-      'https://upload.wikimedia.org/wikipedia/commons/thumb/2/21/Flag_of_Vietnam.svg/1200px-Flag_of_Vietnam.svg.png',
-      alignment: Alignment.center,
-      width: 150,
-      height: 150,
-    );
+    Widget imgSection = CircleAvatar(
+              radius: 70,
+              backgroundImage: AssetImage('assets/images/newdelhi.jpg'),
+            );
     Widget TextSection = Container(
       child: Column(
         children: [
           Container(
             child: Text(
               'SignIn',
-              style: TextStyle(fontSize: 50, color: Colors.white),
+              style: TextStyle(fontSize: 35, color: Colors.white),
             ),
           ),
-          Text('Speak, friend, and enter'),
         ],
       ),
     );
@@ -99,8 +96,7 @@ class _LoginPageState extends State<LoginPage> {
       child: Column(
         children: [
           Container(
-            width: 450,
-            height: 50,
+            width: 350,
             margin: EdgeInsets.only(bottom: 10),
             child: TextField(
               controller: _controller1,
@@ -115,8 +111,7 @@ class _LoginPageState extends State<LoginPage> {
             ),
           ),
           Container(
-            width: 450,
-            height: 50,
+            width: 350,
             child: TextField(
               controller: _controller2,
               obscureText: true,
@@ -134,7 +129,7 @@ class _LoginPageState extends State<LoginPage> {
       ),
     );
     Widget SignInButton = Container(
-      width: 450,
+      width: 350,
       height: 50,
       child: TextButton(
         child: Text(
@@ -171,7 +166,7 @@ class _LoginPageState extends State<LoginPage> {
     );
     Widget RegisterButton = Container(
       margin: EdgeInsets.only(top: 10),
-      width: 450,
+      width: 350,
       height: 50,
       child: TextButton(
         child: Text(
@@ -188,17 +183,18 @@ class _LoginPageState extends State<LoginPage> {
       ),
     );
     Widget ButtonSection = Container(
+      margin: EdgeInsets.only(top:10),
       child: Column(
         children: [SignInButton, RegisterButton],
       ),
     );
     return Scaffold(
-      backgroundColor: Color(0xff1278f3),
+      backgroundColor: Colors.lightBlue,
       body: Center(
           child: SingleChildScrollView(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-          children: [imgSection, TextSection, LoginSection, ButtonSection],
+          children: [imgSection, TextSection,LoginSection, ButtonSection],
         ),
       )),
     );
