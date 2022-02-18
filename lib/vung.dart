@@ -3,14 +3,16 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 import 'package:http/http.dart' as http;
+import 'package:map_launcher/map_launcher.dart';
 import 'package:vietnamtourism/chitietdiadanh.dart';
 import 'package:vietnamtourism/chitietvung.dart';
 import 'package:vietnamtourism/model/vung-model.dart';
+import 'package:vietnamtourism/share-destination.dart';
 
 import 'api.dart';
 
 class Vung extends StatefulWidget {
-  Vung({Key? key ,required this.userId}) : super(key: key);
+  Vung({Key? key, required this.userId}) : super(key: key);
   final String userId;
   @override
   State<Vung> createState() => _VungState();
@@ -18,6 +20,13 @@ class Vung extends StatefulWidget {
 
 class _VungState extends State<Vung> {
   List<VungModel> lsVung = [];
+  Future<void> _openGoogleMap(double x, double y) async {
+    final availableMaps = await MapLauncher.installedMaps;
+    await availableMaps.first.showMarker(
+      coords: Coords(x, y),
+      title: "Ocean Beach",
+    );
+  }
 
   Future<String> loadDSDiaDanhTheoVung() async {
     Iterable dsDiaDanh = [];
@@ -66,19 +75,6 @@ class _VungState extends State<Vung> {
       );
     }
 
-    // if (isUpdate == true) {
-    //   Iterable dsVung=[];
-    //   API(url: "http://10.0.2.2/vietnamtourism/api/lay_ds_vung.php?ver=0")
-    //       .getDataString()
-    //       .then((value) {
-    //     dsVung = json.decode(value);
-    //     for(int i=0;i<dsVung.length;i++){
-    //         VungModel vungTemp=VungModel(dsVung.elementAt(i)["id"].toString(), dsVung.elementAt(i)["ten_vung"].toString(), layLoaiDiaDanh());
-    //     }
-    //     isUpdate = false;
-    //     setState(() {});
-    //   });
-    // }
     return Scaffold(
       body: ListView.builder(
           itemCount: lsVung.length,
@@ -127,8 +123,9 @@ class _VungState extends State<Vung> {
                                   ),
                                   Positioned(
                                       left: 30.0,
-                                      bottom: 30.0,
+                                      bottom: 25.0,
                                       child: Column(
+                                        crossAxisAlignment: CrossAxisAlignment.start,
                                         children: [
                                           Text(
                                               lsVung[index]
@@ -138,13 +135,63 @@ class _VungState extends State<Vung> {
                                               style: TextStyle(
                                                   fontSize: 18,
                                                   color: Colors.white)),
-                                          _buildRatingStars(double.parse(
-                                              lsVung[index]
-                                                  .dsDiaDanh
-                                                  .elementAt(i)["sao_danh_gia"]
-                                                  .toString()))
+                                          Container(
+                                            width: 180,
+                                            child: Row(
+                                              mainAxisAlignment:
+                                                  MainAxisAlignment
+                                                      .spaceBetween,
+                                              children: [
+                                                _buildRatingStars(double.parse(
+                                                    lsVung[index]
+                                                        .dsDiaDanh
+                                                        .elementAt(
+                                                            i)["sao_danh_gia"]
+                                                        .toString())),
+                                                IconButton(
+                                                    onPressed: () => _openGoogleMap(
+                                                        double.parse(lsVung[index]
+                                                        .dsDiaDanh
+                                                        .elementAt(
+                                                            i)["kinh_do"]
+                                                        .toString()),
+                                                        double.parse(lsVung[index]
+                                                        .dsDiaDanh
+                                                        .elementAt(
+                                                            i)["vi_do"]
+                                                        .toString())),
+                                                    icon: Icon(
+                                                      Icons.location_on,
+                                                      color: Colors.white,
+                                                    )),
+                                              ],
+                                            ),
+                                          )
                                         ],
                                       )),
+                                  Positioned(
+                                      top: 10,
+                                      right: 10,
+                                      child: IconButton(
+                                          onPressed: () {
+                                            Navigator.push(
+                                                context,
+                                                MaterialPageRoute(
+                                                    builder: (context) =>
+                                                        ShareDestination(
+                                                          userId: widget.userId,
+                                                          diaDanhId:
+                                                              lsVung[index]
+                                                                  .dsDiaDanh
+                                                                  .elementAt(
+                                                                      i)["id"]
+                                                                  .toString(),
+                                                        )));
+                                          },
+                                          icon: Icon(
+                                            Icons.share,
+                                            color: Colors.white,
+                                          )))
                                 ],
                               ),
                             );
@@ -156,58 +203,3 @@ class _VungState extends State<Vung> {
     );
   }
 }
-//lsVung[index].dsDiaDanh.elementAt(i)["ten_dia_danh"].toString()
-//Stack(
-        //     children: <Widget>[
-        //       Container(
-        //         margin: EdgeInsets.fromLTRB(40.0, 0, 20.0, 0),
-        //         height: 210.0,
-        //         width: double.infinity,
-        //         decoration: BoxDecoration(
-        //           color: Colors.white,
-        //           borderRadius: BorderRadius.circular(20.0),
-        //         ),
-        //         child: Padding(
-        //           padding: EdgeInsets.fromLTRB(100.0, 20.0, 20.0, 20.0),
-        //           child: Column(
-        //             mainAxisAlignment: MainAxisAlignment.center,
-        //             crossAxisAlignment: CrossAxisAlignment.start,
-        //             children: <Widget>[
-        //               Row(
-        //                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        //                 crossAxisAlignment: CrossAxisAlignment.start,
-        //                 children: <Widget>[
-        //                   Container(
-        //                     width: 200.0,
-        //                     child: Text(
-        //                       dsVung.elementAt(index)["ten_vung"].toString(),
-        //                       style: TextStyle(
-        //                         fontSize: 20.0,
-        //                         fontWeight: FontWeight.w600,
-        //                       ),
-        //                       overflow: TextOverflow.fade,
-        //                       maxLines: 4,
-        //                     ),
-        //                   ),
-        //                 ],
-        //               ),                                                                                                 
-        //             ],
-        //           ),
-        //         ),
-        //       ),
-        //       Positioned(
-        //         left: 20.0,
-        //         top: 15.0,
-        //         bottom: 15.0,
-        //         child: ClipRRect(
-        //           borderRadius: BorderRadius.circular(20.0),
-        //           child: Image.asset(
-        //             'assets/images/hotel2.jpg',
-        //             width: 110,
-        //             fit: BoxFit.cover,
-        //           ),
-        //         ),
-        //       ),
-        //     ],
-        //   );
-        // },

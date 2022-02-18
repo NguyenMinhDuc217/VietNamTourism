@@ -127,11 +127,11 @@ class _QuanLyState extends State<QuanLy> {
             child: ListView.builder(
                 itemCount: ds.length,
                 itemBuilder: (context, index) => ListTile(
-                      leading: Image.network(
-                        'https://upload.wikimedia.org/wikipedia/commons/thumb/2/21/Flag_of_Vietnam.svg/1200px-Flag_of_Vietnam.svg.png',
-                        height: 50,
-                        width: 50,
-                      ),
+                      leading: Image.asset(
+                          'assets/images/hotel2.jpg',
+                          width: 110,
+                          fit: BoxFit.cover,
+                        ),
                       title: Text(ds.elementAt(index)["ten_dia_danh"].toString()),
                       trailing: Row(
                         mainAxisSize: MainAxisSize.min,

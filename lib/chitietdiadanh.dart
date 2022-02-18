@@ -6,8 +6,10 @@ import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 import 'package:map_launcher/map_launcher.dart';
 import 'package:vietnamtourism/danhsachbaiviet.dart';
 import 'package:vietnamtourism/share-destination.dart';
+import 'package:vietnamtourism/trangcanhan.dart';
 
 import 'api.dart';
+import 'model/bai-viet.dart';
 
 class ChiTietDiaDanh extends StatefulWidget {
   ChiTietDiaDanh({Key? key, required this.diaDanhId, required this.userId})
@@ -21,6 +23,7 @@ class ChiTietDiaDanh extends StatefulWidget {
 class _ChiTietDiaDanhState extends State<ChiTietDiaDanh> {
   Iterable diaDanh = [];
   Iterable baiViet = [];
+  List<BaiViet> lstBaiViet = [];
   Iterable diaDanhLuuTru = [];
   bool isUpdate = true;
   Future<void> _openGoogleMap(double x, double y) async {
@@ -43,6 +46,49 @@ class _ChiTietDiaDanhState extends State<ChiTietDiaDanh> {
     );
   }
 
+  Future<String> loadBaiVietTheoDiaDanh() async {
+    String diaDanhid = widget.diaDanhId;
+    String useridXem = widget.userId;
+    Iterable baiViet = [];
+    Iterable tuongTac = [];
+    if (lstBaiViet.length > 0) {
+      lstBaiViet.clear();
+    }
+    API(url: "http://10.0.2.2/vietnamtourism/api/lay_ds_bai_viet_theo_dia_danh.php?id=$diaDanhid")
+        .getDataString()
+        .then((value) {
+      baiViet = json.decode(value);
+      for (int i = 0; i < baiViet.length; i++) {
+        String id = baiViet.elementAt(i)["id"].toString();
+        API(url: "http://10.0.2.2/vietnamtourism/api/lay_tuong_tac.php?user_id=$useridXem&bai_viet_id=$id")
+            .getDataString()
+            .then((value) {
+          tuongTac = json.decode(value);
+          setState(() {
+            BaiViet bv = BaiViet(
+                id,
+                baiViet.elementAt(i)["ten_dia_danh"].toString(),
+                baiViet.elementAt(i)["ten_nguoi_dung"].toString(),
+                baiViet.elementAt(i)["tai_khoan_id"].toString(),
+                baiViet.elementAt(i)["dia_danh_id"].toString(),
+                baiViet.elementAt(i)["cam_nghi"].toString(),
+                baiViet.elementAt(i)["danh_gia"].toString(),
+                baiViet.elementAt(i)["so_luong_like"].toString(),
+                baiViet.elementAt(i)["so_luong_unlike"].toString(),
+                baiViet.elementAt(i)["so_luong_view"].toString(),
+                baiViet.elementAt(i)["ngay_tao"].toString(),
+                tuongTac);
+            lstBaiViet.add(bv);
+          });
+        });
+      }
+
+      setState(() {});
+    });
+
+    return "Succes";
+  }
+
   Future<String> layDSDiaDanhLuuTru() async {
     String diaDanhid = widget.diaDanhId;
     String url =
@@ -57,24 +103,25 @@ class _ChiTietDiaDanhState extends State<ChiTietDiaDanh> {
     return "Sucess";
   }
 
-  Future<String> layBaiVietOfUser() async {
-    String diaDanhid = widget.diaDanhId;
+  Future UpdateTuongTac(
+      String baiVietId, String trangThai, String isLike) async {
+    String userid = widget.userId;
+    Iterable s = [];
+    print(isLike);
     String url =
-        "http://10.0.2.2/vietnamtourism/api/lay_ds_bai_viet_theo_dia_danh.php?id=$diaDanhid";
+        "http://10.0.2.2/vietnamtourism/api/thay_doi_tuong_tac.php?trang_thai_like=$trangThai&bai_viet_id=$baiVietId&user_id=$userid&islike=$isLike";
     var res = await http.get(Uri.parse(url));
     var resBody = json.decode(res.body);
     setState(() {
-      baiViet = resBody;
-      print(baiViet);
+      s = resBody;
+      print(s);
     });
-
-    return "Sucess";
   }
 
   @override
   void initState() {
     super.initState();
-    this.layBaiVietOfUser();
+    this.loadBaiVietTheoDiaDanh();
     this.layDSDiaDanhLuuTru();
   }
 
@@ -91,8 +138,10 @@ class _ChiTietDiaDanhState extends State<ChiTietDiaDanh> {
       });
     }
     return Scaffold(
-      body: Column(
+        body: SingleChildScrollView(
+      child: Column(
         children: <Widget>[
+          //Thông tin địa danh
           Stack(
             children: [
               Image.asset(
@@ -129,32 +178,39 @@ class _ChiTietDiaDanhState extends State<ChiTietDiaDanh> {
                           ),
                           Spacer(),
                           Row(
-                            children: [                             
-                              baiViet.length.toString() != "0"
-                                  ? GestureDetector(
-                                      onTap: () {
-                                        Navigator.push(
-                                            context,
-                                            MaterialPageRoute(
-                                                builder: (context) =>
-                                                    BaiVietDiaDanh(
-                                                      diaDanhId:
-                                                          widget.diaDanhId,
-                                                      userId: widget.userId,
-                                                    )));
-                                      },
-                                      child: Text(
-                                        "( " +
-                                            baiViet.length.toString() +
-                                            " chia sẻ )",
-                                        style: TextStyle(
-                                            fontSize: 18, color: Colors.white),
-                                      ),
-                                    )
-                                  : Text(""),
-                                  IconButton(
+                            children: [
+                              // baiViet.length.toString() != "0"
+                              //     ? GestureDetector(
+                              //         onTap: () {
+                              //           Navigator.push(
+                              //               context,
+                              //               MaterialPageRoute(
+                              //                   builder: (context) =>
+                              //                       BaiVietDiaDanh(
+                              //                         diaDanhId:
+                              //                             widget.diaDanhId,
+                              //                         userId: widget.userId,
+                              //                       )));
+                              //         },
+                              //         child: Text(
+                              //           "( " +
+                              //               baiViet.length.toString() +
+                              //               " chia sẻ )",
+                              //           style: TextStyle(
+                              //               fontSize: 18, color: Colors.white),
+                              //         ),
+                              //       )
+                              //     : Text(""),
+                              IconButton(
                                   onPressed: () {
-                                    Navigator.push(context, MaterialPageRoute(builder: (context)=>ShareDestination(userId: widget.userId, diaDanhId:widget.diaDanhId, )));
+                                    Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                            builder: (context) =>
+                                                ShareDestination(
+                                                  userId: widget.userId,
+                                                  diaDanhId: widget.diaDanhId,
+                                                )));
                                   },
                                   icon: Icon(
                                     Icons.share,
@@ -186,24 +242,29 @@ class _ChiTietDiaDanhState extends State<ChiTietDiaDanh> {
                             height: 12,
                           ),
                           Row(
-                            mainAxisAlignment : MainAxisAlignment.spaceBetween,
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
-                            _buildRatingStars(double.parse(
-                              diaDanh.elementAt(0)['sao_danh_gia'].toString())),
-                            Container(
-                                  padding: EdgeInsets.all(5.0),
-                                  width: 100.0,
-                                  decoration: BoxDecoration(
-                                    color: Colors.lightBlue,
-                                    borderRadius: BorderRadius.circular(10.0),
-                                  ),
-                                  alignment: Alignment.center,
-                                  child: Text(
-                                    diaDanh.elementAt(0)["ten_loai_dia_danh"].toString(),
-                                    style: TextStyle(fontSize: 15,color: Colors.white),
-                                  ),
+                              _buildRatingStars(double.parse(diaDanh
+                                  .elementAt(0)['sao_danh_gia']
+                                  .toString())),
+                              Container(
+                                padding: EdgeInsets.all(5.0),
+                                width: 100.0,
+                                decoration: BoxDecoration(
+                                  color: Colors.lightBlue,
+                                  borderRadius: BorderRadius.circular(10.0),
                                 ),
-                          ],),
+                                alignment: Alignment.center,
+                                child: Text(
+                                  diaDanh
+                                      .elementAt(0)["ten_loai_dia_danh"]
+                                      .toString(),
+                                  style: TextStyle(
+                                      fontSize: 15, color: Colors.white),
+                                ),
+                              ),
+                            ],
+                          ),
                           SizedBox(
                             height: 12,
                           ),
@@ -226,134 +287,271 @@ class _ChiTietDiaDanhState extends State<ChiTietDiaDanh> {
               )
             ],
           ),
-          Expanded(
-            child: ListView.builder(
-              padding: EdgeInsets.only(top: 10.0, bottom: 15.0),
-              itemCount: diaDanhLuuTru.length,
-              itemBuilder: (BuildContext context, int index) {
-                return Stack(
-                  children: <Widget>[
-                    Container(
-                      margin: EdgeInsets.fromLTRB(10.0, 5.0, 10.0, 5.0),
-                      height: 170.0,
-                      width: double.infinity,
-                      decoration: BoxDecoration(
-                        color: Colors.blue[100],
-                        borderRadius: BorderRadius.circular(10.0),
-                      ),
-                      child: Padding(
-                        padding: EdgeInsets.fromLTRB(130.0, 20.0, 20.0, 20.0),
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: <Widget>[
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: <Widget>[
-                                Container(
-                                  width: 120.0,
-                                  child: Text(
-                                    diaDanhLuuTru
-                                        .elementAt(index)["ten"]
-                                        .toString(),
-                                    style: TextStyle(
-                                      fontSize: 18.0,
-                                      fontWeight: FontWeight.w600,
-                                    ),
-                                    overflow: TextOverflow.ellipsis,
-                                    maxLines: 2,
-                                  ),
+          SizedBox(
+            height: 10,
+          ),
+          Text(
+            "Địa danh lưu trú",
+            style: TextStyle(fontSize: 20),
+          ),
+          diaDanhLuuTru.length > 0
+              ? Container(
+                  margin: EdgeInsets.symmetric(vertical: 20.0),
+                  height: 300.0,
+                  child: ListView(
+                      scrollDirection: Axis.horizontal,
+                      children: List.generate(diaDanhLuuTru.length, (i) {
+                        return Stack(
+                          children: [
+                            Padding(
+                              padding: EdgeInsets.all(10),
+                              child: ClipRRect(
+                                borderRadius: BorderRadius.circular(20.0),
+                                child: Image.asset(
+                                  'assets/images/saopaulo.jpg',
+                                  width: 200,
+                                  height: 300,
+                                  fit: BoxFit.fitHeight,
                                 ),
-                                // Column(
-                                //   children: <Widget>[
-                                //     Text(
-                                //       '100000',
-                                //       style: TextStyle(
-                                //         fontSize: 22.0,
-                                //         fontWeight: FontWeight.w600,
-                                //       ),
-                                //     ),
-                                //   ],
-                                // ),
-                                IconButton(
-                                    onPressed: () => _openGoogleMap(
-                                        double.parse(diaDanhLuuTru
-                                            .elementAt(index)['kinh_do']
-                                            .toString()),
-                                        double.parse(diaDanhLuuTru
-                                            .elementAt(index)['vi_do']
-                                            .toString())),
-                                    icon: Icon(Icons.location_on)),
-                              ],
-                            ),
-                            Text(
-                              "Số điện thoại: " +
-                                  diaDanhLuuTru
-                                      .elementAt(index)["sdt"]
-                                      .toString(),
-                              style: TextStyle(
-                                fontSize: 14,
-                                color: Colors.grey[700],
                               ),
                             ),
-                            _buildRatingStars(double.parse(diaDanhLuuTru
-                                .elementAt(index)["sao_danh_gia"]
-                                .toString())),
-                            SizedBox(height: 10.0),
-                            Row(
-                              children: <Widget>[
-                                Container(
-                                  padding: EdgeInsets.all(5.0),
-                                  width: 70.0,
-                                  decoration: BoxDecoration(
-                                    color: Colors.lightBlue,
-                                    borderRadius: BorderRadius.circular(10.0),
-                                  ),
-                                  alignment: Alignment.center,
+                            Positioned(
+                                left: 30.0,
+                                bottom: 25.0,
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                        diaDanhLuuTru
+                                            .elementAt(i)["ten"]
+                                            .toString(),
+                                        style: TextStyle(
+                                            fontSize: 20, color: Colors.white)),
+                                    Container(
+                                      width: 180,
+                                      child: Row(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.spaceBetween,
+                                        children: [
+                                          _buildRatingStars(double.parse(
+                                              diaDanhLuuTru
+                                                  .elementAt(i)["sao_danh_gia"]
+                                                  .toString())),
+                                          IconButton(
+                                              onPressed: () {
+                                                _openGoogleMap(
+                                                    double.parse(diaDanhLuuTru
+                                                        .elementAt(i)['kinh_do']
+                                                        .toString()),
+                                                    double.parse(diaDanhLuuTru
+                                                        .elementAt(i)['vi_do']
+                                                        .toString()));
+                                              },
+                                              icon: Icon(
+                                                Icons.location_on,
+                                                color: Colors.white,
+                                              )),
+                                        ],
+                                      ),
+                                    ),
+                                    Container(
+                                        width: 150,
+                                        child: Flexible(
+                                            child: Text(
+                                                "Sdt: " +
+                                                    diaDanhLuuTru
+                                                        .elementAt(i)["sdt"]
+                                                        .toString(),
+                                                overflow: TextOverflow.ellipsis,
+                                                style: TextStyle(
+                                                    fontSize: 16,
+                                                    color: Colors.white))))
+                                  ],
+                                )),
+                          ],
+                        );
+                      })))
+              : Container(
+                  margin: EdgeInsets.all(20),
+                  child: Text("Không có dữ liệu về địa danh lưu trú",
+                      style: TextStyle(fontSize: 20)),
+                ),
+          Text(
+            "Bài viết",
+            style: TextStyle(fontSize: 20),
+          ),
+
+          Column(
+              children: List.generate(lstBaiViet.length, (index) {
+            return Card(
+                margin: const EdgeInsets.all(20),
+                child: Padding(
+                  padding: EdgeInsets.all(5),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      ListTile(
+                        leading: CircleAvatar(
+                          radius: 25,
+                          backgroundImage:
+                              AssetImage('assets/images/santorini.jpg'),
+                        ),
+                        title: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            GestureDetector(
+                              onTap: () {
+                                Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                        builder: (context) => TaiKhoan(
+                                              id: lstBaiViet[index]
+                                                  .taiKhoanId
+                                                  .toString(),
+                                              userId: widget.userId,
+                                            ))).then((value) {
+                                  this.loadBaiVietTheoDiaDanh();
+                                });
+                              },
+                              child: Text(
+                                lstBaiViet[index].ten_nguoi_dung.toString(),
+                                style: const TextStyle(
+                                    fontWeight: FontWeight.bold),
+                              ),
+                            ),
+                            const Text(
+                              " đã chia sẽ về ",
+                            ),
+                            Flexible(
+                              child: InkWell(
+                                  onTap: () {
+                                    Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                            builder: (context) =>
+                                                ChiTietDiaDanh(
+                                                    userId: widget.userId,
+                                                    diaDanhId: lstBaiViet[index]
+                                                        .diaDanhId)));
+                                  },
                                   child: Text(
-                                    '1h',
-                                  ),
-                                ),
-                                SizedBox(width: 10.0),
-                                Container(
-                                  padding: EdgeInsets.all(5.0),
-                                  width: 70.0,
-                                  decoration: BoxDecoration(
-                                    color: Colors.lightBlue,
-                                    borderRadius: BorderRadius.circular(10.0),
-                                  ),
-                                  alignment: Alignment.center,
-                                  child: Text(
-                                    '2h',
-                                  ),
-                                ),
-                              ],
-                            )
+                                    lstBaiViet[index].tenDiaDanh,
+                                    overflow: TextOverflow.ellipsis,
+                                    style:
+                                        TextStyle(fontWeight: FontWeight.bold),
+                                  )),
+                            ),
                           ],
                         ),
+                        subtitle: Text(lstBaiViet[index].thoiGian),
                       ),
-                    ),
-                    Positioned(
-                      left: 20.0,
-                      top: 15.0,
-                      bottom: 15.0,
-                      child: ClipRRect(
-                        borderRadius: BorderRadius.circular(20.0),
-                        child: Image.asset(
-                          'assets/images/hotel2.jpg',
-                          width: 110,
-                          fit: BoxFit.cover,
+                      Padding(
+                        padding: EdgeInsets.fromLTRB(20, 10, 20, 10),
+                        child: _buildRatingStars(
+                            double.parse(lstBaiViet[index].dangGia)),
+                      ),
+                      Padding(
+                        padding: EdgeInsets.fromLTRB(20, 10, 20, 10),
+                        child: Text(
+                          lstBaiViet[index].camNghi,
+                          style: TextStyle(fontSize: 18),
                         ),
                       ),
-                    ),
-                  ],
-                );
-              },
-            ),
-          ),
+                      Padding(
+                        padding: EdgeInsets.fromLTRB(20, 10, 20, 10),
+                        child: Image.asset('assets/images/paris.jpg'),
+                      ),
+                      Divider(
+                        color: Colors.black,
+                      ),
+                      Padding(
+                        padding: EdgeInsets.all(10),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Row(
+                              children: [
+                                IconButton(
+                                    onPressed: () {
+                                      UpdateTuongTac(
+                                              lstBaiViet[index].id,
+                                              "1",
+                                              lstBaiViet[index]
+                                                  .trangThaiLike
+                                                  .elementAt(
+                                                      0)["trang_thai_like"]
+                                                  .toString())
+                                          .then((value) {
+                                        setState(() {
+                                          this.loadBaiVietTheoDiaDanh();
+                                        });
+                                      });
+                                    },
+                                    icon: lstBaiViet[index]
+                                                .trangThaiLike
+                                                .elementAt(0)["trang_thai_like"]
+                                                .toString() ==
+                                            "1"
+                                        ? Icon(
+                                            Icons.thumb_up_alt_rounded,
+                                            color: Colors.blue,
+                                          )
+                                        : Icon(Icons.thumb_up_alt_rounded)),
+                                Text("(" +
+                                    lstBaiViet[index].soLuongLike.toString() +
+                                    ")")
+                              ],
+                            ),
+                            Row(
+                              children: [
+                                IconButton(
+                                    onPressed: () {
+                                      UpdateTuongTac(
+                                              lstBaiViet[index].id,
+                                              "2",
+                                              lstBaiViet[index]
+                                                  .trangThaiLike
+                                                  .elementAt(
+                                                      0)["trang_thai_like"]
+                                                  .toString())
+                                          .then((value) {
+                                        setState(() {
+                                          this.loadBaiVietTheoDiaDanh();
+                                        });
+                                      });
+                                    },
+                                    icon: lstBaiViet[index]
+                                                .trangThaiLike
+                                                .elementAt(0)["trang_thai_like"]
+                                                .toString() ==
+                                            "2"
+                                        ? Icon(
+                                            Icons.thumb_down_alt_rounded,
+                                            color: Colors.blue,
+                                          )
+                                        : Icon(Icons.thumb_down_alt_rounded)),
+                                Text("(" +
+                                    lstBaiViet[index].soLuongUnLike.toString() +
+                                    ")")
+                              ],
+                            ),
+                            Row(
+                              children: [
+                                Icon(Icons.remove_red_eye_sharp),
+                                Text("(" +
+                                    lstBaiViet[index].soLuongView.toString() +
+                                    ")")
+                              ],
+                            ),
+                          ],
+                        ),
+                      )
+                    ],
+                  ),
+                ));
+          }))
         ],
       ),
-    );
+    ));
   }
 }

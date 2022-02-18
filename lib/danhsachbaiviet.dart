@@ -50,7 +50,7 @@ class _BaiVietDiaDanhState extends State<BaiVietDiaDanh> {
                 baiViet.elementAt(i)["so_luong_like"].toString(),
                 baiViet.elementAt(i)["so_luong_unlike"].toString(),
                 baiViet.elementAt(i)["so_luong_view"].toString(),
-                baiViet.elementAt(i)["thoi_gian"].toString(),
+                baiViet.elementAt(i)["ngay_tao"].toString(),
                 tuongTac);
             lstBaiViet.add(bv);
           });

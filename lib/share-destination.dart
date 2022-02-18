@@ -33,15 +33,15 @@ class _ShareDestinationState extends State<ShareDestination> {
     String canNghi = _controllerCamNghi.text;
     String userid = widget.userId;
     String diaDanhid = widget.diaDanhId;
-    Iterable s = [];
+    String s = "";
     String url =
         "http://10.0.2.2/vietnamtourism/api/chia_se_dia_danh.php?user_id=$userid&dia_danh_id=$diaDanhid&cam_nghi=$canNghi&danh_gia=$ratingStar";
     var res = await http.get(Uri.parse(url));
-    var resBody = json.decode(res.body);
+    var resBody = res.body;
     setState(() {
       s = resBody;
     });
-    if (s.isEmpty) {
+    if (s=="pass") {
       showDialog(
           context: context,
           builder: (BuildContext) => AlertDialog(

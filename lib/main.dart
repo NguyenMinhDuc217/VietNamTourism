@@ -4,6 +4,7 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:vietnamtourism/diadanhluutru.dart';
+import 'package:vietnamtourism/homepage.dart';
 import 'package:vietnamtourism/personal-info.dart';
 import 'package:vietnamtourism/trangcanhan.dart';
 import './vung.dart';
@@ -43,6 +44,7 @@ class _MyHomePageState extends State<MyHomePage> {
   int selectedIndex = 0;
   List<Widget> pageList = <Widget>[
     Column(),
+    Column(),
     DiaDanhLuuTru(),
     Column(),
   ];
@@ -56,8 +58,9 @@ class _MyHomePageState extends State<MyHomePage> {
     setState(() {
       user = resBody;
       print(user);
-      pageList[0] = DiaDanh(userId: widget.id);
-      pageList[2] = Vung(userId: widget.id);
+      pageList[0] = HomePage(userId: widget.id);
+      pageList[1] = DiaDanh(userId: widget.id);
+      pageList[3] = Vung(userId: widget.id);
 
     });
     return "Sucess";
@@ -159,6 +162,10 @@ class _MyHomePageState extends State<MyHomePage> {
         type: BottomNavigationBarType.fixed,
         currentIndex: selectedIndex,
         items: [
+          BottomNavigationBarItem(
+            icon: Icon(Icons.home),
+            label: 'Trang chủ',
+          ),
           BottomNavigationBarItem(
             icon: Icon(Icons.edit_location),
             label: 'Địa danh',

@@ -21,7 +21,6 @@ class _TaiKhoanState extends State<TaiKhoan> {
   Iterable user = [];
   Iterable ttUser = [];
 
-  //Iterable tuongTac = [];
   Future<String> loadBaiViet() async {
     String useridOfBaiViet = widget.id;
     String useridXem = widget.userId;
@@ -30,7 +29,7 @@ class _TaiKhoanState extends State<TaiKhoan> {
     if (lstBaiViet.length > 0) {
       lstBaiViet.clear();
     }
-    API(url: "http://10.0.2.2/vietnamtourism/api/lay_ds_bai_viet.php?id=$useridOfBaiViet")
+    API(url: "http://10.0.2.2/vietnamtourism/api/lay_ds_bai_viet_theo_id.php?id=$useridOfBaiViet")
         .getDataString()
         .then((value) {
       baiViet = json.decode(value);
@@ -52,7 +51,7 @@ class _TaiKhoanState extends State<TaiKhoan> {
                 baiViet.elementAt(i)["so_luong_like"].toString(),
                 baiViet.elementAt(i)["so_luong_unlike"].toString(),
                 baiViet.elementAt(i)["so_luong_view"].toString(),
-                baiViet.elementAt(i)["thoi_gian"].toString(),
+                baiViet.elementAt(i)["ngay_tao"].toString(),
                 tuongTac);
             lstBaiViet.add(bv);
           });
@@ -92,34 +91,6 @@ class _TaiKhoanState extends State<TaiKhoan> {
 
     return "Sucess";
   }
-
-  // Future<String> layTuongTacOfUser() async {
-  //   String id1 = widget.id;
-  //   String userid = widget.userId;
-  //   String url =
-  //       "http://10.0.2.2/vietnamtourism/api/lay_tuong_tac.php?id=$id1&user_id=$userid";
-  //   var res = await http.get(Uri.parse(url));
-  //   var resBody = json.decode(res.body);
-  //   setState(() {
-  //     tuongTac = resBody;
-  //     print(tuongTac);
-  //   });
-  //   return "Sucess";
-  // }
-
-  // Future<String> layBaiVietOfUser() async {
-  //   String userid = widget.id;
-  //   String url =
-  //       "http://10.0.2.2/vietnamtourism/api/lay_ds_bai_viet.php?id=$userid";
-  //   var res = await http.get(Uri.parse(url));
-  //   var resBody = json.decode(res.body);
-  //   setState(() {
-  //     baiViet = resBody;
-  //     print(baiViet);
-  //   });
-  //   return "Sucess";
-  // }
-
   Future<String> layTrangThaiOfUser() async {
     String userid = widget.id;
     String url =
