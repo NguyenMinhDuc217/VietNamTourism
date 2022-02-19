@@ -5,6 +5,7 @@ import 'package:http/http.dart' as http;
 import 'package:vietnamtourism/chitietdiadanh.dart';
 import 'package:vietnamtourism/sua-thong-tin.dart';
 import 'package:vietnamtourism/thaydoimatkhau.dart';
+import 'package:vietnamtourism/themdiadanh.dart';
 
 class InfoPersonal extends StatefulWidget {
   InfoPersonal({required this.id});
@@ -178,6 +179,19 @@ class _InfoPersonalState extends State<InfoPersonal> {
                               MaterialPageRoute(
                                   builder: (context) =>
                                       ChangePassword(id: widget.id)));
+                        },
+                      ),
+                       ListTile(
+                        leading: Icon(Icons.library_add_outlined, color: Colors.black),
+                        title: Text("Thêm dịa danh"),
+                        trailing: Icon(Icons.arrow_forward_sharp,
+                            color: Colors.black),
+                        onTap: () {
+                          Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (context) =>
+                                      AddDestination()));
                         },
                       )
                     ],

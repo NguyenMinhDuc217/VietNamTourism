@@ -50,7 +50,7 @@ class _DiaDanhState extends State<DiaDanh> {
   }
 
   Future<String> layLoaiDiaDanh() async {
-    String url = "http://10.0.2.2/vietnamtourism/api/lay_ds_loai_dia_danh.php";
+    String url = "http://10.0.2.2/vietnamtourism/api/lay_ds_loai_dia_danh.php?ver=1";
     var res = await http.get(Uri.parse(url));
     var resBody = json.decode(res.body);
     setState(() {
@@ -76,7 +76,7 @@ class _DiaDanhState extends State<DiaDanh> {
   }
 
   Future<String> layMien() async {
-    String url = "http://10.0.2.2/vietnamtourism/api/lay_ds_mien.php";
+    String url = "http://10.0.2.2/vietnamtourism/api/lay_ds_mien.php?ver=1";
     var res = await http.get(Uri.parse(url));
     var resBody = json.decode(res.body);
     setState(() {
