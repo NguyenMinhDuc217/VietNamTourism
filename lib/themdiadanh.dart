@@ -81,7 +81,7 @@ class _AddDestinationState extends State<AddDestination> {
           context: context,
           builder: (BuildContext) => AlertDialog(
                 title: Text('Thông báo'),
-                content: Text('Thêm không thành công - địa danh đã tồn tại'),
+                content: Text('Thêm không thành công'),
                 actions: <Widget>[
                   TextButton(
                     onPressed: () {

@@ -210,7 +210,9 @@ class _ChiTietDiaDanhState extends State<ChiTietDiaDanh> {
                                                 ShareDestination(
                                                   userId: widget.userId,
                                                   diaDanhId: widget.diaDanhId,
-                                                )));
+                                                ))).then((value){
+                                                 loadBaiVietTheoDiaDanh();
+                                                });
                                   },
                                   icon: Icon(
                                     Icons.share,

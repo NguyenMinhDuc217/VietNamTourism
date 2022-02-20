@@ -50,7 +50,7 @@ class _InfoPersonalState extends State<InfoPersonal> {
   Future<String> layBaiVietOfUser() async {
     String userid = widget.id;
     String url =
-        "http://10.0.2.2/vietnamtourism/api/lay_ds_bai_viet.php?id=$userid";
+        "http://10.0.2.2/vietnamtourism/api/lay_ds_bai_viet_theo_id.php?id=$userid";
     var res = await http.get(Uri.parse(url));
     var resBody = json.decode(res.body);
     setState(() {
@@ -60,6 +60,7 @@ class _InfoPersonalState extends State<InfoPersonal> {
 
     return "Sucess";
   }
+
   @override
   void initState() {
     super.initState();
@@ -102,13 +103,9 @@ class _InfoPersonalState extends State<InfoPersonal> {
             children: [
               Padding(
                 padding: const EdgeInsets.all(15),
-                child: ClipRRect(
-                  borderRadius: BorderRadius.circular(100.0),
-                  child: Image.asset(
-                    'assets/images/santorini.jpg',
-                    width: 200,
-                    fit: BoxFit.cover,
-                  ),
+                child: CircleAvatar(
+                  radius: 100,
+                  backgroundImage: AssetImage('assets/images/santorini.jpg'),
                 ),
               ),
               Text(
@@ -181,8 +178,9 @@ class _InfoPersonalState extends State<InfoPersonal> {
                                       ChangePassword(id: widget.id)));
                         },
                       ),
-                       ListTile(
-                        leading: Icon(Icons.library_add_outlined, color: Colors.black),
+                      ListTile(
+                        leading: Icon(Icons.library_add_outlined,
+                            color: Colors.black),
                         title: Text("Thêm dịa danh"),
                         trailing: Icon(Icons.arrow_forward_sharp,
                             color: Colors.black),
@@ -190,8 +188,7 @@ class _InfoPersonalState extends State<InfoPersonal> {
                           Navigator.push(
                               context,
                               MaterialPageRoute(
-                                  builder: (context) =>
-                                      AddDestination()));
+                                  builder: (context) => AddDestination()));
                         },
                       )
                     ],
@@ -207,18 +204,37 @@ class _InfoPersonalState extends State<InfoPersonal> {
                               fontSize: 20, fontWeight: FontWeight.bold),
                         ),
                       ),
-                      Column(
-                          children: List.generate(
-                        baiViet.length,
-                        (index) {
-                          return ListTile(
-                            title: Text(baiViet.elementAt(index)["ten_dia_danh"].toString()),
-                            onTap: (){
-                              Navigator.push(context, MaterialPageRoute(builder: (context)=>ChiTietDiaDanh(userId: widget.id, diaDanhId: baiViet.elementAt(index)["dia_danh_id"].toString())));
-                            },
-                          );
-                        },
-                      ))
+                      baiViet.length > 0
+                          ? Column(
+                              children: List.generate(
+                              baiViet.length,
+                              (index) {
+                                return ListTile(
+                                  title: Text(baiViet
+                                      .elementAt(index)["ten_dia_danh"]
+                                      .toString()),
+                                  onTap: () {
+                                    Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                            builder: (context) =>
+                                                ChiTietDiaDanh(
+                                                    userId: widget.id,
+                                                    diaDanhId: baiViet
+                                                        .elementAt(index)[
+                                                            "dia_danh_id"]
+                                                        .toString())));
+                                  },
+                                );
+                              },
+                            ))
+                          : Text(
+                              "Không có dữ liệu về địa danh đã đi",
+                              style: TextStyle(fontSize: 15),
+                            ),
+                      SizedBox(
+                        height: 20,
+                      )
                     ],
                   )),
             ],

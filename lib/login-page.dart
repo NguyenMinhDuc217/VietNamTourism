@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:vietnamtourism/main.dart';
@@ -26,7 +27,8 @@ class _LoginPageState extends State<LoginPage> {
       String password = _controller2.text;
       Iterable s = [];
       _taiKhoan.clear();
-      var url ='http://10.0.2.2/vietnamtourism/api/dang_nhap.php?username=$email&password=$password';
+      var url =
+          'http://10.0.2.2/vietnamtourism/api/dang_nhap.php?username=$email&password=$password';
       var response = await http.get(Uri.parse(url));
       s = jsonDecode(response.body);
       if (s.isNotEmpty) {
@@ -77,9 +79,9 @@ class _LoginPageState extends State<LoginPage> {
     }
 
     Widget imgSection = CircleAvatar(
-              radius: 70,
-              backgroundImage: AssetImage('assets/images/newdelhi.jpg'),
-            );
+      radius: 70,
+      backgroundImage: AssetImage('assets/images/newdelhi.jpg'),
+    );
     Widget TextSection = Container(
       child: Column(
         children: [
@@ -182,10 +184,27 @@ class _LoginPageState extends State<LoginPage> {
         ),
       ),
     );
+    Widget ExitButton = Container(
+      margin: EdgeInsets.only(top: 10),
+      width: 350,
+      height: 50,
+      child: TextButton(
+        child: Text(
+          'THOÁT',
+          style: TextStyle(color: Colors.white),
+        ),
+        onPressed: () {
+          exit(0);
+        },
+        style: ButtonStyle(
+          backgroundColor: MaterialStateProperty.all<Color>(Colors.black),
+        ),
+      ),
+    );
     Widget ButtonSection = Container(
-      margin: EdgeInsets.only(top:10),
+      margin: EdgeInsets.only(top: 10),
       child: Column(
-        children: [SignInButton, RegisterButton],
+        children: [SignInButton, RegisterButton, ExitButton],
       ),
     );
     return Scaffold(
@@ -194,7 +213,7 @@ class _LoginPageState extends State<LoginPage> {
           child: SingleChildScrollView(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-          children: [imgSection, TextSection,LoginSection, ButtonSection],
+          children: [imgSection, TextSection, LoginSection, ButtonSection],
         ),
       )),
     );
