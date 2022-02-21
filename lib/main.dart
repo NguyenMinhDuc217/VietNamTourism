@@ -179,10 +179,6 @@ class _MyHomePageState extends State<MyHomePage> {
             icon: Icon(Icons.add_location_alt_rounded),
             label: 'Vùng',
           ),
-          // BottomNavigationBarItem(
-          //   icon: Icon(Icons.account_circle),
-          //   label: 'Cá nhân',
-          // ),
         ],
         onTap: (value) {
           setState(() {

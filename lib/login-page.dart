@@ -190,7 +190,7 @@ class _LoginPageState extends State<LoginPage> {
       height: 50,
       child: TextButton(
         child: Text(
-          'THOÁT',
+          'EXIT',
           style: TextStyle(color: Colors.white),
         ),
         onPressed: () {
