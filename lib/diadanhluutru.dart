@@ -29,7 +29,7 @@ class DiaDanhLucTruState extends State<DiaDanhLuuTru> {
     var resBody = json.decode(res.body);
     setState(() {
       diaDanhLuuTru = resBody;
-      print(diaDanhLuuTru);
+      print(diaDanhLuuTru); 
     });
 
     return "Sucess";

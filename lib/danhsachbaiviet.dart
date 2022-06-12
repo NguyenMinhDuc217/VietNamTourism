@@ -62,7 +62,9 @@ class _BaiVietDiaDanhState extends State<BaiVietDiaDanh> {
 
     return "Succes";
   }
-  Future UpdateTuongTac(String baiVietId, String trangThai,String isLike) async {
+
+  Future UpdateTuongTac(
+      String baiVietId, String trangThai, String isLike) async {
     String userid = widget.userId;
     Iterable s = [];
     print(isLike);
@@ -79,7 +81,7 @@ class _BaiVietDiaDanhState extends State<BaiVietDiaDanh> {
   @override
   void initState() {
     super.initState();
-  this.loadBaiViet();
+    this.loadBaiViet();
   }
 
   @override
@@ -126,11 +128,13 @@ class _BaiVietDiaDanhState extends State<BaiVietDiaDanh> {
                                       context,
                                       MaterialPageRoute(
                                           builder: (context) => TaiKhoan(
-                                                id:lstBaiViet[index].taiKhoanId.toString(),
+                                                id: lstBaiViet[index]
+                                                    .taiKhoanId
+                                                    .toString(),
                                                 userId: widget.userId,
-                                              ))).then((value){
-                                                this.loadBaiViet();
-                                              });
+                                              ))).then((value) {
+                                    this.loadBaiViet();
+                                  });
                                 },
                                 child: Text(
                                   lstBaiViet[index].ten_nguoi_dung.toString(),
@@ -150,7 +154,10 @@ class _BaiVietDiaDanhState extends State<BaiVietDiaDanh> {
                                               builder: (context) =>
                                                   ChiTietDiaDanh(
                                                       userId: widget.userId,
-                                                      diaDanhId:  lstBaiViet[index].diaDanhId.toString())));
+                                                      diaDanhId:
+                                                          lstBaiViet[index]
+                                                              .diaDanhId
+                                                              .toString())));
                                     },
                                     child: Text(
                                       lstBaiViet[index].tenDiaDanh.toString(),
@@ -161,27 +168,25 @@ class _BaiVietDiaDanhState extends State<BaiVietDiaDanh> {
                               ),
                             ],
                           ),
-                          subtitle: Text(                          
-                              lstBaiViet[index].thoiGian.toString(),
-                              ),
+                          subtitle: Text(
+                            lstBaiViet[index].thoiGian.toString(),
+                          ),
                         ),
                         Padding(
                           padding: EdgeInsets.fromLTRB(20, 10, 20, 10),
                           child: _buildRatingStars(double.parse(
-                              lstBaiViet[index].dangGia.toString()
-                              )),
+                              lstBaiViet[index].dangGia.toString())),
                         ),
                         Padding(
                           padding: EdgeInsets.fromLTRB(20, 10, 20, 10),
                           child: Text(
-
                             lstBaiViet[index].camNghi.toString(),
                             style: TextStyle(fontSize: 18),
                           ),
                         ),
                         Padding(
                           padding: EdgeInsets.fromLTRB(20, 10, 20, 10),
-                          child:Image.asset('assets/images/paris.jpg'),
+                          child: Image.asset('assets/images/paris.jpg'),
                         ),
                         Divider(
                           color: Colors.black,
@@ -195,10 +200,16 @@ class _BaiVietDiaDanhState extends State<BaiVietDiaDanh> {
                                 children: [
                                   IconButton(
                                       onPressed: () {
-                                         UpdateTuongTac(
-                                                lstBaiViet[index].id, "1",lstBaiViet[index].trangThaiLike.elementAt(0)["trang_thai_like"].toString())
+                                        UpdateTuongTac(
+                                                lstBaiViet[index].id,
+                                                "1",
+                                                lstBaiViet[index]
+                                                    .trangThaiLike
+                                                    .elementAt(
+                                                        0)["trang_thai_like"]
+                                                    .toString())
                                             .then((value) {
-                                           setState(() {
+                                          setState(() {
                                             this.loadBaiViet();
                                           });
                                         });
@@ -215,7 +226,7 @@ class _BaiVietDiaDanhState extends State<BaiVietDiaDanh> {
                                             )
                                           : Icon(Icons.thumb_up_alt_rounded)),
                                   Text("(" +
-                                       lstBaiViet[index].soLuongLike.toString() +
+                                      lstBaiViet[index].soLuongLike.toString() +
                                       ")")
                                 ],
                               ),
@@ -223,10 +234,16 @@ class _BaiVietDiaDanhState extends State<BaiVietDiaDanh> {
                                 children: [
                                   IconButton(
                                       onPressed: () {
-                                         UpdateTuongTac(
-                                                lstBaiViet[index].id, "2",lstBaiViet[index].trangThaiLike.elementAt(0)["trang_thai_like"].toString())
+                                        UpdateTuongTac(
+                                                lstBaiViet[index].id,
+                                                "2",
+                                                lstBaiViet[index]
+                                                    .trangThaiLike
+                                                    .elementAt(
+                                                        0)["trang_thai_like"]
+                                                    .toString())
                                             .then((value) {
-                                           setState(() {
+                                          setState(() {
                                             this.loadBaiViet();
                                           });
                                         });
@@ -243,7 +260,9 @@ class _BaiVietDiaDanhState extends State<BaiVietDiaDanh> {
                                             )
                                           : Icon(Icons.thumb_down_alt_rounded)),
                                   Text("(" +
-                                       lstBaiViet[index].soLuongUnLike.toString() +
+                                      lstBaiViet[index]
+                                          .soLuongUnLike
+                                          .toString() +
                                       ")")
                                 ],
                               ),
@@ -251,7 +270,7 @@ class _BaiVietDiaDanhState extends State<BaiVietDiaDanh> {
                                 children: [
                                   Icon(Icons.remove_red_eye_sharp),
                                   Text("(" +
-                                       lstBaiViet[index].soLuongView.toString() +
+                                      lstBaiViet[index].soLuongView.toString() +
                                       ")")
                                 ],
                               ),
